@@ -6,8 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: Assets/Demo/New Scene.unity
-    guid: 20c721cd6877241528a04f3a9aa64e2b
+    path: Assets/Demo/AllocTest/AllocTest.unity
+    guid: 91b0460a5e21e4d3f971ac00fc35d60f
+  - enabled: 1
+    path: Assets/Samples/Demo/UIMaterialPropertyInjector_Demo.unity
+    guid: 03e3a150760c941e194aa6908432a940
   - enabled: 1
     path: Assets/Demo/TextMeshProSupport/TextMeshProSupport.unity
     guid: 966d8602b662540f5afa915aabfaea83

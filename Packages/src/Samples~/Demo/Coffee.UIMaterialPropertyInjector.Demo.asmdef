@@ -1,0 +1,16 @@
+{
+    "name": "Coffee.UIMaterialPropertyInjector.Demo",
+    "rootNamespace": "",
+    "references": [
+        "GUID:1dfa9376c09b544718e27517295387d4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

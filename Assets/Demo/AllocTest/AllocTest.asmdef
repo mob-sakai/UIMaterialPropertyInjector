@@ -1,0 +1,17 @@
+{
+    "name": "AllocTest",
+    "rootNamespace": "",
+    "references": [
+        "GUID:c7a163cf79fa14611a165dc6fc8bce88",
+        "GUID:1dfa9376c09b544718e27517295387d4"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

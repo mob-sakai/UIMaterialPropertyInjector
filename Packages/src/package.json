@@ -1,0 +1,24 @@
+{
+  "name": "com.coffee.ui-material-property-injector",
+  "displayName": "UI Material Property Injector",
+  "description": "This package provides a component that allows easy modification of material properties for Unity UI (uGUI) without the need for shader-specific custom components.",
+  "version": "0.0.1",
+  "unity": "2019.4",
+  "license": "MIT",
+  "documentationUrl": "https://github.com/mob-sakai/UIMaterialPropertyInjector/blob/main/Packages/src/README.md",
+  "licensesUrl": "https://github.com/mob-sakai/UIMaterialPropertyInjector/blob/main/Packages/src/LICENSE.md",
+  "changelogUrl": "https://github.com/mob-sakai/UIMaterialPropertyInjector/blob/main/Packages/src/CHANGELOG.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mob-sakai/UIMaterialPropertyInjector.git",
+    "directory": "Packages/src"
+  },
+  "author": {
+    "name": "mob-sakai",
+    "email": "sakai861104@gmail.com",
+    "url": "https://github.com/mob-sakai"
+  },
+  "dependencies": {
+    "com.unity.ugui": "1.0.0"
+  }
+}

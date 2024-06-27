@@ -5,7 +5,7 @@
 [![](https://img.shields.io/github/release-date/mob-sakai/UIMaterialPropertyInjector.svg)](https://github.com/mob-sakai/UIMaterialPropertyInjector/releases)  
 ![](https://img.shields.io/badge/Unity-2019.4+-57b9d3.svg?style=flat&logo=unity)
 ![](https://img.shields.io/badge/uGUI_2.0_Ready-57b9d3.svg?style=flat)
-[![](https://img.shields.io/github/license/mob-sakai/UIMaterialPropertyInjector.svg)](https://github.com/mob-sakai/UIMaterialPropertyInjector/blob/main/LICENSE.txt)
+[![](https://img.shields.io/github/license/mob-sakai/UIMaterialPropertyInjector.svg)](https://github.com/mob-sakai/UIMaterialPropertyInjector/blob/main/LICENSE.md)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](http://makeapullrequest.com)
 [![](https://img.shields.io/github/watchers/mob-sakai/UIMaterialPropertyInjector.svg?style=social&label=Watch)](https://github.com/mob-sakai/UIMaterialPropertyInjector/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
@@ -28,7 +28,7 @@ Custom properties for changing material properties are easy for experienced user
 
 This package provides a component that allows easy modification of material properties for Unity UI (uGUI) without the need for shader-specific custom components.
 
-![](https://github.com/mob-sakai/mob-sakai/assets/12690315/5c61d6fe-d45d-4db5-83d2-934f1aa24f96)
+![](https://github.com/mob-sakai/mob-sakai/assets/12690315/fb589373-e8e8-4136-a48a-a38b167d379d)
 
 **Key Features:**
 

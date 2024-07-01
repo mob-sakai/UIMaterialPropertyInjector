@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Coffee.UIMaterialPropertyInjectorInternal;
 using UnityEditor;
@@ -10,6 +11,10 @@ namespace Coffee.UIExtensions
     [CustomPropertyDrawer(typeof(InjectionProperty))]
     internal class InjectionPropertyDrawer : PropertyDrawer
     {
+        private static readonly Func<bool> s_InAnimationRecording = typeof(AnimationMode)
+            .GetMethod("InAnimationRecording", BindingFlags.Static | BindingFlags.NonPublic)
+            .CreateDelegate(typeof(Func<bool>)) as Func<bool>;
+
         private static SerializedProperty GetProperty(SerializedProperty property, PropertyType type)
         {
             switch (type)
@@ -114,6 +119,14 @@ namespace Coffee.UIExtensions
                     r.xMin += 18;
                 }
 
+                var bg = GUI.backgroundColor;
+                if (prop.isAnimated)
+                {
+                    GUI.backgroundColor = s_InAnimationRecording()
+                        ? AnimationMode.recordedPropertyColor
+                        : AnimationMode.animatedPropertyColor;
+                }
+
                 ReadFrom(name, type, prop, material);
                 var mp = MaterialEditor.GetMaterialProperty(_editor.targets, name);
                 if (type == PropertyType.Texture || mp.name != name)
@@ -142,6 +155,8 @@ namespace Coffee.UIExtensions
                         prop.serializedObject.ApplyModifiedProperties();
                     }
                 }
+
+                GUI.backgroundColor = bg;
             }
 
             private static bool IsValid(Material material, string propertyName, PropertyType type)

@@ -267,6 +267,10 @@ namespace Coffee.UIExtensions
             var groupId = sharingGroupId != 0 ? sharingGroupId : (uint)pHash.GetHashCode();
             var localId = sharingGroupId != 0 ? 0 : (uint)GetInstanceID();
             var hash = new Hash128((uint)baseMaterial.GetInstanceID(), groupId, localId, 0);
+
+            // If the material has been changed, mark as dirty.
+            _dirty |= !MaterialRepository.Valid(hash, _material);
+
             MaterialRepository.Get(hash, ref _material, m => new Material(m)
             {
                 hideFlags = HideFlags.DontSave | HideFlags.NotEditable

@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.0.1...1.0.2) (2024-07-03)
+
+
+### Bug Fixes
+
+* nest less-frequently used properties within dropdown (editor) ([ad67744](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/ad67744c0525a1c3f2be7dcc7ccea94084d2b914))
+
 ## [1.0.1](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.0.0...1.0.1) (2024-07-01)
 
 

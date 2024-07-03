@@ -232,26 +232,6 @@ namespace Coffee.UIExtensions
                         break;
                 }
             }
-
-            // private static void ReadFrom(PropertyType type, SerializedProperty prop, MaterialProperty mp)
-            // {
-            //     switch (type)
-            //     {
-            //         case PropertyType.Color:
-            //             mp.colorValue = prop.colorValue;
-            //             break;
-            //         case PropertyType.Vector:
-            //             mp.vectorValue = prop.vector4Value;
-            //             break;
-            //         case PropertyType.Float:
-            //         case PropertyType.Range:
-            //             mp.floatValue = prop.floatValue;
-            //             break;
-            //         case PropertyType.Int:
-            //             mp.intValue = prop.intValue;
-            //             break;
-            //     }
-            // }
         }
     }
 }

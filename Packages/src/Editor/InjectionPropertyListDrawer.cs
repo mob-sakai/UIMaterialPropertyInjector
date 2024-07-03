@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -10,6 +12,10 @@ namespace Coffee.UIExtensions
     {
         public Action<SerializedProperty, string> postAddCallback;
         public Action resetCallback;
+
+        private static readonly Regex s_RegexOthers =
+            new Regex("_ST$|_HDR$|_TexelSize$|^_Stencil|^_MainTex$|^_ClipRect$|^_UseUIAlphaClip$|^_ColorMask$" +
+                      "|^_TextureSampleAdd$|^_UIMaskSoftnessX$|^_UIMaskSoftnessY$");
 
         public InjectionPropertyListDrawer(SerializedProperty prop) : base(prop.serializedObject, prop)
         {
@@ -47,37 +53,53 @@ namespace Coffee.UIExtensions
 
             if (!current) return;
 
+            var included = new HashSet<string>(Enumerable.Range(0, propArray.arraySize)
+                .Select(i => propArray.GetArrayElementAtIndex(i).FindPropertyRelative("m_PropertyName").stringValue));
             var shader = current.defaultMaterialForRendering.shader;
+            var properties = GetAllProperties(shader)
+                .Where(p => !included.Contains(p.name))
+                .Append((name: "", type: PropertyType.Undefined)) // Separator
+                .OrderBy(p => s_RegexOthers.IsMatch(p.name) ? 1 : 0);
             var menu = new GenericMenu();
-            var propCount = shader.GetPropertyCount();
-            for (var i = 0; i < propCount; i++)
+            foreach (var p in properties)
             {
-                var propertyName = shader.GetPropertyName(i);
-                var type = (PropertyType)shader.GetPropertyType(i);
-                AddToMenu(menu, propArray, propertyName, type);
-
-                if (type == PropertyType.Texture)
-                {
-                    AddToMenu(menu, propArray, $"{propertyName}_ST");
-                    AddToMenu(menu, propArray, $"{propertyName}_HDR");
-                    AddToMenu(menu, propArray, $"{propertyName}_TexelSize");
-                }
+                AddToMenu(menu, propArray, p.name, p.type, postAddCallback);
             }
 
             menu.DropDown(r);
         }
 
-        private void AddToMenu(GenericMenu menu, SerializedProperty propArray, string propertyName,
-            PropertyType type = PropertyType.Vector)
+        private static IEnumerable<(string name, PropertyType type)> GetAllProperties(Shader shader)
         {
-            if (Enumerable.Range(0, propArray.arraySize)
-                .Select(propArray.GetArrayElementAtIndex)
-                .Any(x => x.FindPropertyRelative("m_PropertyName")?.stringValue == propertyName))
+            var propCount = shader.GetPropertyCount();
+            for (var i = 0; i < propCount; i++)
             {
+                var propertyName = shader.GetPropertyName(i);
+                var type = (PropertyType)shader.GetPropertyType(i);
+                yield return (propertyName, type);
+
+                if (type == PropertyType.Texture)
+                {
+                    yield return ($"{propertyName}_ST", PropertyType.Vector);
+                    yield return ($"{propertyName}_HDR", PropertyType.Vector);
+                    yield return ($"{propertyName}_TexelSize", PropertyType.Vector);
+                }
+            }
+        }
+
+        private static void AddToMenu(GenericMenu menu, SerializedProperty propArray, string propertyName,
+            PropertyType type, Action<SerializedProperty, string> postAddCallback)
+        {
+            if (type == PropertyType.Undefined)
+            {
+                menu.AddSeparator("");
                 return;
             }
 
-            menu.AddItem(new GUIContent($"{propertyName} ({type})"), false, () =>
+            var menuPath = s_RegexOthers.IsMatch(propertyName)
+                ? $"Others.../{propertyName} ({type})"
+                : $"{propertyName} ({type})";
+            menu.AddItem(EditorGUIUtility.TrTextContent(menuPath), false, () =>
             {
                 var prop = propArray.GetArrayElementAtIndex(propArray.arraySize++);
                 postAddCallback?.Invoke(prop, propertyName);

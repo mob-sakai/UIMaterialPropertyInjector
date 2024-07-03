@@ -58,7 +58,9 @@ namespace Coffee.UIExtensions
                     // Animatable: Create new Injector if needed and rebind it.
                     if (!ip.injector && allowAddInjector)
                     {
+                        Profiler.BeginSample("(MPI)[InjectorList] Rebuild > AddInjector");
                         ip.injector = ip.AddInjector(host);
+                        Profiler.EndSample();
                     }
                 }
                 else
@@ -73,10 +75,13 @@ namespace Coffee.UIExtensions
 
         public static void ResetToDefault(this List<InjectionProperty> self, Material material)
         {
+            Profiler.BeginSample("(MPI)[InjectorList] ResetToDefault");
             for (var i = 0; i < self.Count; i++)
             {
                 self[i].ResetToDefault(material);
             }
+
+            Profiler.EndSample();
         }
     }
 }

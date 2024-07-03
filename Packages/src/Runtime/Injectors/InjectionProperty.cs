@@ -219,10 +219,13 @@ namespace Coffee.UIExtensions
 
         public void Inject(List<Material> materials)
         {
+            Profiler.BeginSample("(MPI)[InjectionProperty] Inject");
             for (var j = 0; j < materials.Count; j++)
             {
                 Inject(materials[j]);
             }
+
+            Profiler.EndSample();
         }
 
         public void Inject(Material material)
@@ -311,7 +314,11 @@ namespace Coffee.UIExtensions
             m_Int = default;
             m_Injector = default;
             id = Shader.PropertyToID(m_PropertyName);
-            if (!mat || !mat.shader) return;
+            if (!mat || !mat.shader)
+            {
+                Profiler.EndSample();
+                return;
+            }
 
             var index = mat.shader.FindPropertyIndex(m_PropertyName);
             m_Type = 0 <= index

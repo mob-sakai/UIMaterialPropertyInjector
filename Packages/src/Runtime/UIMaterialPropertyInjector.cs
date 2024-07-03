@@ -237,23 +237,19 @@ namespace Coffee.UIExtensions
 
         Material IMaterialModifier.GetModifiedMaterial(Material baseMaterial)
         {
-            Profiler.BeginSample("(MPI)[MPInjector] GetModifiedMaterial");
             if (_defaultMaterialMode)
             {
                 _defaultMaterialMode = false;
-                Profiler.EndSample();
-
                 return baseMaterial;
             }
 
             if (!isActiveAndEnabled || baseMaterial == null || !canInject)
             {
                 MaterialRepository.Release(ref _material);
-                Profiler.EndSample();
-
                 return baseMaterial;
             }
 
+            Profiler.BeginSample("(MPI)[MPInjector] GetModifiedMaterial");
             Profiler.BeginSample("(MPI)[MPInjector] GetModifiedMaterial > Calc Hash");
             var pHash = 0L;
             for (var i = 0; i < properties.Count; i++)
@@ -367,17 +363,21 @@ namespace Coffee.UIExtensions
             if (m_Properties.TryGet(propertyName, out var result)) return result;
 
             // Not found: Add new property.
+            Profiler.BeginSample("(MPI)[Injector] GetOrAddProperty");
             var p = new InjectionProperty(this, propertyName, type);
             if (animatable)
             {
                 // Animatable: Create new Injector if needed and rebind it.
+                Profiler.BeginSample("(MPI)[Injector] GetOrAddProperty > AddInjector");
                 p.injector = p.AddInjector(this);
+                Profiler.EndSample();
             }
 
             // Reset to default first.
             p.ResetToDefault(material);
             m_Properties.Add(p);
             ShouldRebuild();
+            Profiler.EndSample();
             return p;
         }
 
@@ -386,6 +386,7 @@ namespace Coffee.UIExtensions
             // Skip if not dirty.
             if (!graphic || !_dirty || !canInject) return;
             _dirty = false;
+            Profiler.BeginSample("(MPI)[Injector] InjectIfNeeded");
 
             // Inject properties to materials.
             graphic.GetMaterialsForRendering(s_Materials);
@@ -395,6 +396,7 @@ namespace Coffee.UIExtensions
             }
 
             s_Materials.Clear();
+            Profiler.EndSample();
         }
 
         /// <summary>
@@ -402,6 +404,8 @@ namespace Coffee.UIExtensions
         /// </summary>
         private void SetMaterialDirty()
         {
+            Profiler.BeginSample("(MPI)[MPInjector] SetMaterialDirty");
+
             // Set material dirty for the graphic.
             if (graphic && graphic.isActiveAndEnabled)
             {
@@ -409,7 +413,12 @@ namespace Coffee.UIExtensions
             }
 
             // Set material dirty for children.
-            if (_children == null) return;
+            if (_children == null)
+            {
+                Profiler.EndSample();
+                return;
+            }
+
             for (var i = 0; i < children.Count; i++)
             {
                 var child = children[i];
@@ -418,6 +427,8 @@ namespace Coffee.UIExtensions
                     child.SetMaterialDirty();
                 }
             }
+
+            Profiler.EndSample();
         }
 
         /// <summary>
@@ -425,11 +436,10 @@ namespace Coffee.UIExtensions
         /// </summary>
         public void SetDirty()
         {
-            Profiler.BeginSample("(MPI)[MPInjector] SetDirty");
             _dirty = true;
-
-
             if (_children == null) return;
+
+            Profiler.BeginSample("(MPI)[MPInjector] SetDirty");
             for (var i = 0; i < children.Count; i++)
             {
                 var child = children[i];

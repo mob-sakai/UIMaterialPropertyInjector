@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🔖 Run semantic release
-        uses: cycjimmy/semantic-release-action@v3
+        uses: cycjimmy/semantic-release-action@v4
         id: release
         with:
           working_directory: Packages/src

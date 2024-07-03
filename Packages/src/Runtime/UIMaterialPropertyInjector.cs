@@ -22,19 +22,23 @@ namespace Coffee.UIExtensions
         private static readonly List<Material> s_Materials = new List<Material>();
 
         [Tooltip("Reset all properties with the material properties when enabled.")]
+        [HideInInspector]
         [SerializeField]
         private bool m_ResetValuesOnEnable;
 
         [Tooltip("Makes it animatable in the Animation view.")]
+        [HideInInspector]
         [SerializeField]
         private bool m_Animatable = true;
 
         [Tooltip("Sharing group ID. If set, it shares the same material with the same group ID.\n" +
                  "NOTE: The material instances cannot be shared if the mask depth is different.")]
         [SerializeField]
+        [HideInInspector]
         private uint m_SharingGroupId;
 
         [Tooltip("Properties to inject to the material.")]
+        [HideInInspector]
         [SerializeField]
         private List<InjectionProperty> m_Properties = new List<InjectionProperty>();
 
@@ -53,7 +57,7 @@ namespace Coffee.UIExtensions
 
         private bool canInject => _parent ? _parent.canInject : isActiveAndEnabled && 0 < m_Properties.Count;
 
-        private List<InjectionProperty> properties
+        public List<InjectionProperty> properties
         {
             get
             {
@@ -65,7 +69,7 @@ namespace Coffee.UIExtensions
         /// <summary>
         /// Makes it animatable in the Animation view.
         /// </summary>
-        public bool animatable
+        public virtual bool animatable
         {
             get => m_Animatable;
             set
@@ -94,7 +98,7 @@ namespace Coffee.UIExtensions
             }
         }
 
-        private Graphic graphic => _graphic ? _graphic : _graphic = GetComponent<Graphic>();
+        public Graphic graphic => _graphic ? _graphic : _graphic = GetComponent<Graphic>();
 
         public Material material => 0 < graphic.canvasRenderer.materialCount
             ? graphic.canvasRenderer.GetMaterial()
@@ -173,9 +177,10 @@ namespace Coffee.UIExtensions
             }
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             Profiler.BeginSample("(MPI)[MPInjector] OnEnable");
+            UpdateProperties();
             SetDirty();
             SetMaterialDirty();
             ShouldRebuild();
@@ -194,7 +199,7 @@ namespace Coffee.UIExtensions
             Profiler.EndSample();
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             Profiler.BeginSample("(MPI)[MPInjector] OnDisable");
             UIExtraCallbacks.onAfterCanvasRebuild -= _injectIfNeeded;
@@ -206,7 +211,7 @@ namespace Coffee.UIExtensions
             Profiler.EndSample();
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             Profiler.BeginSample("(MPI)[MPInjector] OnDestroy");
             var childCount = transform.childCount;
@@ -227,11 +232,19 @@ namespace Coffee.UIExtensions
         }
 
 #if UNITY_EDITOR
-        private void OnValidate()
+        protected virtual void OnValidate()
         {
+            UpdateProperties();
             SetDirty();
             SetMaterialDirty();
             ShouldRebuild();
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying)
+            {
+                EditorApplication.QueuePlayerLoopUpdate();
+            }
+#endif
         }
 #endif
 
@@ -287,6 +300,11 @@ namespace Coffee.UIExtensions
         {
             // Rebuild properties.
             m_Properties.Rebuild(this, false, false);
+        }
+
+        private void OnDidApplyAnimationProperties()
+        {
+            UpdateProperties();
         }
 
         internal void RebuildPropertiesIfNeeded()
@@ -449,19 +467,13 @@ namespace Coffee.UIExtensions
                 }
             }
 
-#if UNITY_EDITOR
-            if (!Application.isPlaying)
-            {
-                EditorApplication.QueuePlayerLoopUpdate();
-            }
-#endif
             Profiler.EndSample();
         }
 
         /// <summary>
         /// Inject properties should be rebuilt because the properties added or removed.
         /// </summary>
-        private void ShouldRebuild()
+        protected void ShouldRebuild()
         {
             _shouldRebuild = true;
         }
@@ -538,6 +550,13 @@ namespace Coffee.UIExtensions
             m_Properties.ResetToDefault(mat);
             SetMaterialDirty();
             Profiler.EndSample();
+        }
+
+        /// <summary>
+        /// Update properties.
+        /// </summary>
+        protected virtual void UpdateProperties()
+        {
         }
     }
 }

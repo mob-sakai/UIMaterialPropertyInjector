@@ -14,8 +14,9 @@ namespace Coffee.UIExtensions
         public Action resetCallback;
 
         private static readonly Regex s_RegexOthers =
-            new Regex("_ST$|_HDR$|_TexelSize$|^_Stencil|^_MainTex$|^_ClipRect$|^_UseUIAlphaClip$|^_ColorMask$" +
-                      "|^_TextureSampleAdd$|^_UIMaskSoftnessX$|^_UIMaskSoftnessY$");
+            new Regex(
+                "_ST$|_HDR$|_TexelSize$|^_Stencil|^_MainTex$|^_Color$|^_ClipRect$|^_UseUIAlphaClip$|^_ColorMask$" +
+                "|^_TextureSampleAdd$|^_UIMaskSoftnessX$|^_UIMaskSoftnessY$");
 
         public InjectionPropertyListDrawer(SerializedProperty prop) : base(prop.serializedObject, prop)
         {
@@ -56,10 +57,10 @@ namespace Coffee.UIExtensions
             var included = new HashSet<string>(Enumerable.Range(0, propArray.arraySize)
                 .Select(i => propArray.GetArrayElementAtIndex(i).FindPropertyRelative("m_PropertyName").stringValue));
             var shader = current.defaultMaterialForRendering.shader;
-            var properties = GetAllProperties(shader)
+            var properties = shader.GetAllProperties()
                 .Where(p => !included.Contains(p.name))
-                .Append((name: "", type: PropertyType.Undefined)) // Separator
-                .OrderBy(p => s_RegexOthers.IsMatch(p.name) ? 1 : 0);
+                .Append(new ShaderProperty("", PropertyType.Undefined)) // Separator
+                .OrderBy(p => s_RegexOthers.IsMatch(p.name));
             var menu = new GenericMenu();
             foreach (var p in properties)
             {
@@ -67,24 +68,6 @@ namespace Coffee.UIExtensions
             }
 
             menu.DropDown(r);
-        }
-
-        private static IEnumerable<(string name, PropertyType type)> GetAllProperties(Shader shader)
-        {
-            var propCount = shader.GetPropertyCount();
-            for (var i = 0; i < propCount; i++)
-            {
-                var propertyName = shader.GetPropertyName(i);
-                var type = (PropertyType)shader.GetPropertyType(i);
-                yield return (propertyName, type);
-
-                if (type == PropertyType.Texture)
-                {
-                    yield return ($"{propertyName}_ST", PropertyType.Vector);
-                    yield return ($"{propertyName}_HDR", PropertyType.Vector);
-                    yield return ($"{propertyName}_TexelSize", PropertyType.Vector);
-                }
-            }
         }
 
         private static void AddToMenu(GenericMenu menu, SerializedProperty propArray, string propertyName,

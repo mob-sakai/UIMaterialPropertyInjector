@@ -28,7 +28,7 @@ Custom properties for changing material properties are easy for experienced user
 
 This package provides a component that allows easy modification of material properties for Unity UI (uGUI) without the need for shader-specific custom components.
 
-![](https://github.com/mob-sakai/mob-sakai/assets/12690315/fb589373-e8e8-4136-a48a-a38b167d379d)
+![](https://github.com/mob-sakai/UIMaterialPropertyInjector/assets/12690315/adaf45ed-5852-4844-ad1a-daa231225be7)
 
 **Key Features:**
 

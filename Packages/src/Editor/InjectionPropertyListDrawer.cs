@@ -55,7 +55,12 @@ namespace Coffee.UIExtensions
             if (!current) return;
 
             var included = new HashSet<string>(Enumerable.Range(0, propArray.arraySize)
-                .Select(i => propArray.GetArrayElementAtIndex(i).FindPropertyRelative("m_PropertyName").stringValue));
+                .Select(i =>
+                {
+                    var ps = propArray.GetArrayElementAtIndex(i);
+                    var propName = ps.type == "InjectionPropertyPair" ? "m_From.m_PropertyName" : "m_PropertyName";
+                    return ps.FindPropertyRelative(propName).stringValue;
+                }));
             var shader = current.defaultMaterialForRendering.shader;
             var properties = shader.GetAllProperties()
                 .Where(p => !included.Contains(p.name))

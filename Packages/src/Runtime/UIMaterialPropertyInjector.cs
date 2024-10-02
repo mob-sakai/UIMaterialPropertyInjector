@@ -184,6 +184,7 @@ namespace Coffee.UIExtensions
             SetDirty();
             SetMaterialDirty();
             ShouldRebuild();
+            RebuildPropertiesIfNeeded();
 
             if (resetOnEnable)
             {

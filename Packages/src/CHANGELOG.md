@@ -1,3 +1,12 @@
+## [1.0.3](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.0.2...1.0.3) (2024-10-02)
+
+
+### Bug Fixes
+
+* make several APIs virtual for inheritance purposes. ([a6d57d2](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/a6d57d27fb69ecd793c5ba8092eb1c1784f8d92b))
+* property changes by AnimationClip are not applied on the frame where the GameObject is activated in the editor ([35d9d20](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/35d9d2035e39e0ad3991947530698015fb10ac8f))
+* when pressing the "add" button in the Tweener inspector, an error occurs. ([c661bcd](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/c661bcdb3b74f16f6df4894c0f26951c2162c345))
+
 ## [1.0.2](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.0.1...1.0.2) (2024-07-03)
 
 

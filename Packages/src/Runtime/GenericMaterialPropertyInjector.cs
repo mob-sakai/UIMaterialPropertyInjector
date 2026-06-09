@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Profiling;
+using Coffee.UIMaterialPropertyInjectorInternal;
 
 namespace Coffee.UIExtensions
 {

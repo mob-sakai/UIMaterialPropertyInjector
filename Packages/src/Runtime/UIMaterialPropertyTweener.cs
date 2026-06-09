@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Coffee.UIMaterialPropertyInjectorInternal;
 
 namespace Coffee.UIExtensions
 {

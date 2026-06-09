@@ -281,8 +281,8 @@ namespace Coffee.UIExtensions
 
             Profiler.BeginSample("(MPI)[MPInjector] GetModifiedMaterial > Get");
             var groupId = sharingGroupId != 0 ? sharingGroupId : (uint)pHash.GetHashCode();
-            var localId = sharingGroupId != 0 ? 0 : (uint)GetInstanceID();
-            var hash = new Hash128((uint)baseMaterial.GetInstanceID(), groupId, localId, 0);
+            var localId = sharingGroupId != 0 ? 0 : (uint)GetHashCode();
+            var hash = new Hash128((uint)baseMaterial.GetHashCode(), groupId, localId, 0);
 
             // If the material has been changed, mark as dirty.
             _dirty |= !MaterialRepository.Valid(hash, _material);

@@ -79,7 +79,7 @@ namespace Coffee.UIExtensions
             {
                 if (!material || !material.shader) return _invalidDrawer;
 
-                var key = material.shader.GetInstanceID();
+                var key = material.shader.GetHashCode();
                 if (_cache.TryGetValue(key, out var drawer)) return drawer;
                 return _cache[key] = new Drawer(new Material(material.shader) { hideFlags = HideFlags.DontSave });
             }

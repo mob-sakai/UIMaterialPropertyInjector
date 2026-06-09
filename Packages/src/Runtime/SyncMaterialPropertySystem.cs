@@ -102,8 +102,8 @@ namespace Coffee.UIExtensions
             }
 
             FrameCache.Set(to, "hasChanged", true);
-            instance._dirtyCountMap[from.GetInstanceID()] = EditorUtility.GetDirtyCount(from);
-            instance._dirtyCountMap[to.GetInstanceID()] = EditorUtility.GetDirtyCount(to);
+            instance._dirtyCountMap[from.GetHashCode()] = EditorUtility.GetDirtyCount(from);
+            instance._dirtyCountMap[to.GetHashCode()] = EditorUtility.GetDirtyCount(to);
         }
 
         private static void CopyProperty(Material from, Material to, string propertyName, ShaderPropertyType type)
@@ -132,7 +132,7 @@ namespace Coffee.UIExtensions
             if (!material) return false;
             if (FrameCache.TryGet(material, "hasChanged", out bool hasChanged)) return hasChanged;
 
-            var id = material.GetInstanceID();
+            var id = material.GetHashCode();
             var dirtyCount = EditorUtility.GetDirtyCount(material);
             if (instance._dirtyCountMap.TryGetValue(id, out var prevDirtyCount))
             {
@@ -148,7 +148,7 @@ namespace Coffee.UIExtensions
         {
             if (!material) return false;
 
-            var id = material.GetInstanceID();
+            var id = material.GetHashCode();
             var dirtyCount = EditorUtility.GetDirtyCount(material);
             if (instance._dirtyCountMap.TryGetValue(id, out var prevDirtyCount))
             {
@@ -163,7 +163,7 @@ namespace Coffee.UIExtensions
         {
             if (!material) return;
 
-            var id = material.GetInstanceID();
+            var id = material.GetHashCode();
             var dirtyCount = EditorUtility.GetDirtyCount(material);
             instance._dirtyCountMap[id] = dirtyCount;
             FrameCache.Set(material, "hasChanged", false);

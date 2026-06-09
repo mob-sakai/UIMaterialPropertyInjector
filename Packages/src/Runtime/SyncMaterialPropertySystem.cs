@@ -74,7 +74,7 @@ namespace Coffee.UIExtensions
             if (!injector) return;
 
             CopyProperty(injector.baseMaterial, injector.material,
-                ignore ? x => injector.properties.All(y => y.propertyName != x) : null);
+                ignore ? x => injector.properties.All(y => y.propertyName != x) : (Predicate<string>)null);
         }
 
         private static void CopyInjectedToBase(GenericMaterialPropertyInjector injector, bool ignore = true)
@@ -82,7 +82,7 @@ namespace Coffee.UIExtensions
             if (!injector) return;
 
             CopyProperty(injector.material, injector.baseMaterial,
-                ignore ? x => injector.properties.All(y => y.propertyName != x) : null);
+                ignore ? x => injector.properties.All(y => y.propertyName != x) : (Predicate<string>)null);
         }
 
         private static void CopyProperty(Material from, Material to, Predicate<string> valid)

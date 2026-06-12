@@ -1,3 +1,11 @@
+## [1.2.1](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.2.0...1.2.1) (2026-06-12)
+
+
+### Bug Fixes
+
+* compile error in Unity 2019.4 and 2020.x ([148ea1a](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/148ea1ab7082aa05c34efa435bc9127e581c3fab))
+* support Unity 6.5 ([45817ac](https://github.com/mob-sakai/UIMaterialPropertyInjector/commit/45817ac7160b8cae98a11bc33ac3cb79e7b84f0b))
+
 # [1.2.0](https://github.com/mob-sakai/UIMaterialPropertyInjector/compare/1.1.3...1.2.0) (2025-09-12)
 
 

@@ -129,14 +129,6 @@ namespace Coffee.UIExtensions
                 if (Event.current.type == EventType.Layout || !material || !material.shader) return;
 
                 var name = nameProp.stringValue;
-                if (!IsValid(material, name, type, isCustom))
-                {
-                    var warn = EditorGUIUtility.TrTextContentWithIcon(
-                        "", $"{name} ({type}) is not found in the material.", "console.warnicon.sml");
-                    EditorGUI.LabelField(new Rect(r.x, r.y, 18, 18), warn);
-                    r.xMin += 18;
-                }
-
                 var bg = GUI.backgroundColor;
                 if (valueProp.isAnimated)
                 {
@@ -209,37 +201,6 @@ namespace Coffee.UIExtensions
 
                 GUI.backgroundColor = bg;
                 EditorGUIUtility.wideMode = wideMode;
-            }
-
-            private static bool IsValid(Material material, string propertyName, PropertyType type, bool isCustom)
-            {
-                if (!material || !material.shader) return false;
-                if (isCustom) return true;
-
-                var shader = material.shader;
-                var index = shader.FindPropertyIndex(propertyName);
-                if (0 <= index)
-                {
-                    var propertyType = (PropertyType)shader.GetPropertyType(index);
-                    return propertyType == type
-                           || (type == PropertyType.Range && propertyType == PropertyType.Float)
-                           || (type == PropertyType.Float && propertyType == PropertyType.Range);
-                }
-
-                if (type == PropertyType.Vector)
-                {
-                    for (var i = 0; i < s_HiddenPatterns.Length; i++)
-                    {
-                        var pattern = s_HiddenPatterns[i];
-                        var origin = Regex.Replace(propertyName, pattern, "");
-                        if (propertyName != origin)
-                        {
-                            return IsValid(material, origin, PropertyType.Texture, false);
-                        }
-                    }
-                }
-
-                return false;
             }
 
             private static void DrawCustomLabel(ref Rect r, SerializedProperty nameProp, GUIContent label)

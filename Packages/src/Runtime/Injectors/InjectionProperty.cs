@@ -279,33 +279,6 @@ namespace Coffee.UIExtensions
             id = Shader.PropertyToID(m_PropertyName);
         }
 
-        public bool IsValid(Material material)
-        {
-            if (!material) return false;
-            if (m_IsCustom) return true;
-
-#if UNITY_2021_1_OR_NEWER
-            switch (propertyType)
-            {
-                case PropertyType.Color:
-                    return material.HasColor(id);
-                case PropertyType.Float:
-                case PropertyType.Range:
-                    return material.HasFloat(id);
-                case PropertyType.Vector:
-                    return material.HasVector(id);
-                case PropertyType.Texture:
-                    return material.HasTexture(id);
-                case PropertyType.Int:
-                    return material.HasInt(id);
-            }
-
-            return false;
-#else
-            return material.HasProperty(id);
-#endif
-        }
-
         public void Inject(List<Material> materials)
         {
             Profiler.BeginSample("(MPI)[InjectionProperty] Inject");
@@ -319,8 +292,6 @@ namespace Coffee.UIExtensions
 
         public void Inject(Material material)
         {
-            if (!IsValid(material)) return;
-
             switch (propertyType)
             {
                 case PropertyType.Color:

@@ -13,7 +13,10 @@ namespace Coffee.UIExtensions
         {
             public ShaderProperty property;
 
-            public ShaderPropertyItem(ShaderProperty property) : base($"{property.name} ({property.type})")
+            public ShaderPropertyItem(ShaderProperty property) : base(
+                property.type == PropertyType.Undefined
+                    ? property.name
+                    : $"{property.name} ({property.type})")
             {
                 this.property = property;
             }
@@ -36,7 +39,7 @@ namespace Coffee.UIExtensions
 
             foreach (var property in _properties)
             {
-                if (property.type == PropertyType.Undefined)
+                if (string.IsNullOrEmpty(property.name) && property.type == PropertyType.Undefined)
                 {
                     root.AddSeparator();
                 }
@@ -57,7 +60,7 @@ namespace Coffee.UIExtensions
             }
         }
 
-        public void SetProperties(Shader shader, IOrderedEnumerable<ShaderProperty> properties)
+        public void SetProperties(Shader shader, IEnumerable<ShaderProperty> properties)
         {
             _properties = properties
                 .Where(p => !shader.GetPropertyAttributes(p.name)

@@ -22,23 +22,19 @@ namespace Coffee.UIExtensions
         protected static readonly List<Material> s_Materials = new List<Material>();
 
         [Tooltip("Reset all properties with the material properties when enabled.")]
-        [HideInInspector]
         [SerializeField]
         private bool m_ResetValuesOnEnable;
 
         [Tooltip("Makes it animatable in the Animation view.")]
-        [HideInInspector]
         [SerializeField]
         private bool m_Animatable = true;
 
         [Tooltip("Sharing group ID. If set, it shares the same material with the same group ID.\n" +
                  "NOTE: The material instances cannot be shared if the mask depth is different.")]
         [SerializeField]
-        [HideInInspector]
         private uint m_SharingGroupId;
 
         [Tooltip("Properties to inject to the material.")]
-        [HideInInspector]
         [SerializeField]
         private List<InjectionProperty> m_Properties = new List<InjectionProperty>();
 
@@ -114,6 +110,8 @@ namespace Coffee.UIExtensions
         {
             get
             {
+                if (graphic == null) return null;
+
                 Profiler.BeginSample("(MPI)[MPInjector] defaultMaterialForRendering");
                 _defaultMaterialMode = true;
                 var mat = graphic.materialForRendering;

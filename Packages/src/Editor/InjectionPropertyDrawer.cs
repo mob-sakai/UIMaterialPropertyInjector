@@ -37,14 +37,15 @@ namespace Coffee.UIExtensions
 
         public override void OnGUI(Rect r, SerializedProperty property, GUIContent label)
         {
-            var name = property.FindPropertyRelative("m_PropertyName").stringValue;
+            var name = property.FindPropertyRelative("m_PropertyName");
+            var isCustom = property.FindPropertyRelative("m_IsCustom").boolValue && property.name != "m_To";
             var injector = property.FindPropertyRelative("m_Injector").objectReferenceValue as Injector;
             if (injector)
             {
                 injector.hideFlags = HideFlags.None;
                 var prop = new SerializedObject(injector).FindProperty("m_Value");
                 DrawerRepository.instance.Get(injector.host.material)
-                    .OnGUI(r, label, name, injector.type, prop);
+                    .OnGUI(r, label, name, injector.type, prop, isCustom);
                 injector.hideFlags = HideFlags.HideAndDontSave;
             }
             else
@@ -55,8 +56,15 @@ namespace Coffee.UIExtensions
                 var type = (PropertyType)property.FindPropertyRelative("m_Type").intValue;
                 var prop = GetProperty(property, type);
                 DrawerRepository.instance.Get(host ? host.material : null)
-                    .OnGUI(r, label, name, type, prop);
+                    .OnGUI(r, label, name, type, prop, isCustom);
             }
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            var type = (PropertyType)property.FindPropertyRelative("m_Type").intValue;
+            var prop = GetProperty(property, type);
+            return prop != null ? EditorGUI.GetPropertyHeight(prop) : base.GetPropertyHeight(property, label);
         }
 
         private class DrawerRepository : ScriptableSingleton<DrawerRepository>
@@ -106,12 +114,14 @@ namespace Coffee.UIExtensions
                 _editor = null;
             }
 
-            public void OnGUI(Rect r, GUIContent label, string name, PropertyType type, SerializedProperty prop)
+            public void OnGUI(Rect r, GUIContent label, SerializedProperty nameProp, PropertyType type,
+                SerializedProperty valueProp, bool isCustom)
             {
                 var material = _editor ? _editor.target as Material : null;
                 if (Event.current.type == EventType.Layout || !material || !material.shader) return;
 
-                if (!IsValid(material, name, type))
+                var name = nameProp.stringValue;
+                if (!IsValid(material, name, type, isCustom))
                 {
                     var warn = EditorGUIUtility.TrTextContentWithIcon(
                         "", $"{name} ({type}) is not found in the material.", "console.warnicon.sml");
@@ -120,7 +130,7 @@ namespace Coffee.UIExtensions
                 }
 
                 var bg = GUI.backgroundColor;
-                if (prop.isAnimated)
+                if (valueProp.isAnimated)
                 {
                     GUI.backgroundColor = s_InAnimationRecording()
                         ? AnimationMode.recordedPropertyColor
@@ -129,48 +139,63 @@ namespace Coffee.UIExtensions
 
                 var wideMode = EditorGUIUtility.wideMode;
                 EditorGUIUtility.wideMode = true;
-                ReadFrom(name, type, prop, material);
+                ReadFrom(name, type, valueProp, material);
                 var mp = MaterialEditor.GetMaterialProperty(_editor.targets, name);
                 if (type == PropertyType.Texture || mp.name != name)
                 {
-                    if (prop.propertyType == SerializedPropertyType.Vector4)
+                    if (valueProp.propertyType == SerializedPropertyType.Vector4)
                     {
                         EditorGUI.BeginChangeCheck();
-                        var newValue = EditorGUI.Vector4Field(r, label, prop.vector4Value);
+                        if (isCustom)
+                        {
+                            DrawCustomLabel(ref r, nameProp, label);
+                        }
+
+                        var newValue = EditorGUI.Vector4Field(r, label, valueProp.vector4Value);
                         if (EditorGUI.EndChangeCheck())
                         {
-                            prop.vector4Value = newValue;
-                            prop.serializedObject.ApplyModifiedProperties();
+                            valueProp.vector4Value = newValue;
+                            valueProp.serializedObject.ApplyModifiedProperties();
                         }
                     }
                     else
                     {
                         EditorGUI.BeginChangeCheck();
-                        EditorGUI.PropertyField(r, prop, label);
+                        if (isCustom)
+                        {
+                            DrawCustomLabel(ref r, nameProp, label);
+                        }
+
+                        EditorGUI.PropertyField(r, valueProp, label, true);
                         if (EditorGUI.EndChangeCheck())
                         {
-                            prop.serializedObject.ApplyModifiedProperties();
+                            valueProp.serializedObject.ApplyModifiedProperties();
                         }
                     }
                 }
                 else
                 {
                     EditorGUI.BeginChangeCheck();
+                    if (isCustom)
+                    {
+                        DrawCustomLabel(ref r, nameProp, label);
+                    }
+
                     var attributes = material.shader.GetPropertyAttributes(mp.name);
                     var attr = MaterialPropertyAttribute.Find(mp, attributes);
                     if (attr != null)
                     {
-                        attr.OnGUI(r, name, mp);
+                        attr.OnGUI(r, label.text, mp);
                     }
                     else
                     {
-                        DrawDefaultGUI(r, name, mp);
+                        DrawDefaultGUI(r, label.text, mp);
                     }
 
                     if (EditorGUI.EndChangeCheck())
                     {
-                        WriteTo(type, prop, mp);
-                        prop.serializedObject.ApplyModifiedProperties();
+                        WriteTo(type, valueProp, mp);
+                        valueProp.serializedObject.ApplyModifiedProperties();
                     }
                 }
 
@@ -178,9 +203,10 @@ namespace Coffee.UIExtensions
                 EditorGUIUtility.wideMode = wideMode;
             }
 
-            private static bool IsValid(Material material, string propertyName, PropertyType type)
+            private static bool IsValid(Material material, string propertyName, PropertyType type, bool isCustom)
             {
                 if (!material || !material.shader) return false;
+                if (isCustom) return true;
 
                 var shader = material.shader;
                 var index = shader.FindPropertyIndex(propertyName);
@@ -200,12 +226,24 @@ namespace Coffee.UIExtensions
                         var origin = Regex.Replace(propertyName, pattern, "");
                         if (propertyName != origin)
                         {
-                            return IsValid(material, origin, PropertyType.Texture);
+                            return IsValid(material, origin, PropertyType.Texture, false);
                         }
                     }
                 }
 
                 return false;
+            }
+
+            private static void DrawCustomLabel(ref Rect r, SerializedProperty nameProp, GUIContent label)
+            {
+                var labelWidth = EditorGUIUtility.labelWidth;
+                var rLabel = r;
+                rLabel.width = labelWidth - 18;
+                rLabel.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(rLabel, nameProp, GUIContent.none);
+
+                r.xMin += labelWidth;
+                label.text = "";
             }
 
             private void DrawDefaultGUI(Rect r, string name, MaterialProperty mp)

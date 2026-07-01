@@ -33,6 +33,13 @@ namespace Coffee.UIExtensions
         [SerializeField]
         private Injector m_Injector;
 
+        [SerializeField]
+        private bool m_IsCustom;
+#if UNITY_EDITOR
+        [SerializeField]
+        private bool m_ShouldInit;
+#endif
+
         public InjectionProperty()
         {
         }
@@ -181,6 +188,15 @@ namespace Coffee.UIExtensions
 
         public UIMaterialPropertyInjector host { get; set; }
 
+        public bool shouldInit
+        {
+#if UNITY_EDITOR
+            get => m_ShouldInit || m_Type == PropertyType.Undefined;
+#else
+            get => m_Type == PropertyType.Undefined;
+#endif
+        }
+
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
             id = Shader.PropertyToID(m_PropertyName);
@@ -194,6 +210,7 @@ namespace Coffee.UIExtensions
         public bool IsValid(Material material)
         {
             if (!material) return false;
+            if (m_IsCustom) return true;
 
 #if UNITY_2021_1_OR_NEWER
             switch (propertyType)
@@ -278,8 +295,6 @@ namespace Coffee.UIExtensions
 
         public void ResetToDefault(Material material)
         {
-            if (!IsValid(material)) return;
-
             switch (propertyType)
             {
                 case PropertyType.Color:
@@ -331,11 +346,14 @@ namespace Coffee.UIExtensions
         {
             Profiler.BeginSample("(MPI)[InjectionProperty] Init");
             m_Color = default;
-            m_Float = default;
+            m_Float = 0;
             m_Vector = default;
-            m_Texture = default;
-            m_Int = default;
-            m_Injector = default;
+            m_Texture = null;
+            m_Int = 0;
+            m_Injector = null;
+#if UNITY_EDITOR
+            m_ShouldInit = false;
+#endif
             id = Shader.PropertyToID(m_PropertyName);
             if (!mat || !mat.shader)
             {
@@ -344,9 +362,13 @@ namespace Coffee.UIExtensions
             }
 
             var index = mat.shader.FindPropertyIndex(m_PropertyName);
-            m_Type = 0 <= index
-                ? (PropertyType)mat.shader.GetPropertyType(index)
-                : PropertyType.Vector;
+            if (!m_IsCustom)
+            {
+                m_Type = 0 <= index
+                    ? (PropertyType)mat.shader.GetPropertyType(index)
+                    : PropertyType.Vector;
+            }
+
             ResetToDefault(mat);
             Profiler.EndSample();
         }

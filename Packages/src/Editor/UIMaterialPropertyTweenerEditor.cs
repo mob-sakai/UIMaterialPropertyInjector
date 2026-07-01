@@ -51,7 +51,7 @@ namespace Coffee.UIExtensions
             _wrapMode = serializedObject.FindProperty("m_WrapMode");
             _updateMode = serializedObject.FindProperty("m_UpdateMode");
             _target = serializedObject.FindProperty("m_Target");
-            _list = new InjectionPropertyListDrawer(serializedObject.FindProperty("m_PropertyPairs"))
+            _list = new InjectionPropertyListDrawer(serializedObject.FindProperty("m_PropertyPairs"), false)
             {
                 postAddCallback = PostAddElement,
                 resetCallback = ResetCallback,
@@ -114,12 +114,17 @@ namespace Coffee.UIExtensions
             }
         }
 
-        private static void PostAddElement(SerializedProperty prop, string propertyName)
+        private static void PostAddElement(SerializedProperty prop, ShaderProperty s)
         {
-            prop.FindPropertyRelative("m_From.m_Type").intValue = -1;
-            prop.FindPropertyRelative("m_From.m_PropertyName").stringValue = propertyName;
-            prop.FindPropertyRelative("m_To.m_Type").intValue = -1;
-            prop.FindPropertyRelative("m_To.m_PropertyName").stringValue = propertyName;
+            var name = s.isCustom ? s.type.ToString() : s.name;
+            prop.FindPropertyRelative("m_From.m_PropertyName").stringValue =
+                prop.FindPropertyRelative("m_To.m_PropertyName").stringValue = name;
+            prop.FindPropertyRelative("m_From.m_IsCustom").boolValue =
+                prop.FindPropertyRelative("m_To.m_IsCustom").boolValue = s.isCustom;
+            prop.FindPropertyRelative("m_From.m_Type").intValue =
+                prop.FindPropertyRelative("m_To.m_Type").intValue = s.isCustom ? (int)s.type : -1;
+            prop.FindPropertyRelative("m_From.m_ShouldInit").boolValue =
+                prop.FindPropertyRelative("m_To.m_ShouldInit").boolValue = true;
         }
 
         private void ResetCallback()

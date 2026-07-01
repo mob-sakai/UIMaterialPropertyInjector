@@ -13,11 +13,13 @@ namespace Coffee.UIExtensions
         public Vector2 range { get; private set; }
         public ShaderPropertyFlags flags { get; private set; }
         public string[] attributes { get; private set; }
+        public bool isCustom { get; private set; }
 
-        public ShaderProperty(string name, PropertyType type)
+        public ShaderProperty(string name, PropertyType type, bool isCustom = false)
         {
             this.name = name;
             this.type = type;
+            this.isCustom = isCustom;
             description = string.Empty;
             attributes = Array.Empty<string>();
         }

@@ -47,7 +47,7 @@ namespace Coffee.UIExtensions
                 var ip = self[i];
                 ip.host = host;
 
-                if (allowInit && ip.propertyType == PropertyType.Undefined)
+                if (allowInit && ip.shouldInit)
                 {
                     ip.Init(host.material);
                     if (ip.propertyType == PropertyType.Undefined) continue;

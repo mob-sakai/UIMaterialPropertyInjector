@@ -236,12 +236,12 @@ namespace Coffee.UIExtensions
             for (var i = 0; i < m_PropertyPairs.Length; i++)
             {
                 var p = m_PropertyPairs[i];
-                if (p.from.propertyType == PropertyType.Undefined)
+                if (p.from.shouldInit)
                 {
                     p.from.Init(material);
                 }
 
-                if (p.to.propertyType == PropertyType.Undefined)
+                if (p.to.shouldInit)
                 {
                     p.to.Init(material);
                 }

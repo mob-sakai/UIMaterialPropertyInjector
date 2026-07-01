@@ -20,7 +20,7 @@ namespace Coffee.UIExtensions
             _resetValuesOnEnable = serializedObject.FindProperty("m_ResetValuesOnEnable");
             _animatable = serializedObject.FindProperty("m_Animatable");
             _sharingGroupId = serializedObject.FindProperty("m_SharingGroupId");
-            _list = new InjectionPropertyListDrawer(serializedObject.FindProperty("m_Properties"))
+            _list = new InjectionPropertyListDrawer(serializedObject.FindProperty("m_Properties"), true)
             {
                 postAddCallback = PostAddElement,
                 resetCallback = ResetCallback,
@@ -47,10 +47,13 @@ namespace Coffee.UIExtensions
             Profiler.EndSample();
         }
 
-        private static void PostAddElement(SerializedProperty prop, string propertyName)
+        private static void PostAddElement(SerializedProperty prop, ShaderProperty s)
         {
-            prop.FindPropertyRelative("m_Type").intValue = -1;
-            prop.FindPropertyRelative("m_PropertyName").stringValue = propertyName;
+            var name = s.isCustom ? s.type.ToString() : s.name;
+            prop.FindPropertyRelative("m_PropertyName").stringValue = name;
+            prop.FindPropertyRelative("m_IsCustom").boolValue = s.isCustom;
+            prop.FindPropertyRelative("m_Type").intValue = s.isCustom ? (int)s.type : -1;
+            prop.FindPropertyRelative("m_ShouldInit").boolValue = true;
         }
 
         private void ResetCallback()

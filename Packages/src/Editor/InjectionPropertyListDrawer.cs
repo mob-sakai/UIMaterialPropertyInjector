@@ -88,7 +88,24 @@ namespace Coffee.UIExtensions
             var properties = shader.GetAllProperties()
                 .Where(p => 0 == (p.flags & ShaderPropertyFlags.PerRendererData) && !included.Contains(p.name))
                 .Append(new ShaderProperty("", PropertyType.Undefined)) // Separator
-                .OrderBy(p => s_RegexOthers.IsMatch(p.name));
+                .OrderBy(p => s_RegexOthers.IsMatch(p.name))
+                // Fields outside the shader property block can be added manually.
+                .Append(new ShaderProperty("", PropertyType.Undefined)) // Separator
+                .Append(new ShaderProperty("Custom", PropertyType.Color, true)) // AddCustom
+                .Append(new ShaderProperty("Custom", PropertyType.Float, true)) // AddCustom
+                .Append(new ShaderProperty("Custom", PropertyType.Vector, true)) // AddCustom
+                .Append(new ShaderProperty("Custom", PropertyType.Int, true)) // AddCustom
+                .Append(new ShaderProperty("Custom", PropertyType.Texture, true)) // AddCustom
+                .Append(new ShaderProperty("Custom", PropertyType.Matrix, true)); // AddCustom
+
+            // NOTE: Tweener, you cannot handle Array.
+            if (_allowArray)
+            {
+                properties = properties
+                    .Append(new ShaderProperty("Custom", PropertyType.FloatArray, true)) // AddCustom
+                    .Append(new ShaderProperty("Custom", PropertyType.VectorArray, true)) // AddCustom
+                    .Append(new ShaderProperty("Custom", PropertyType.MatrixArray, true)); // AddCustom
+            }
 
             _dropdown.SetProperties(shader, properties);
             _dropdown.SetCallback(s =>

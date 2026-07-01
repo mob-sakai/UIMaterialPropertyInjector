@@ -25,10 +25,22 @@ namespace Coffee.UIExtensions
         private UnityEngine.Color m_Color;
 
         [SerializeField]
-        private Vector4 m_Vector;
+        private UnityEngine.Vector4 m_Vector;
 
         [SerializeField]
         private UnityEngine.Texture m_Texture;
+
+        [SerializeField]
+        private UnityEngine.Matrix4x4 m_Matrix;
+
+        [SerializeField]
+        private UnityEngine.Matrix4x4[] m_MatrixArray;
+
+        [SerializeField]
+        private float[] m_FloatArray;
+
+        [SerializeField]
+        private UnityEngine.Vector4[] m_VectorArray;
 
         [SerializeField]
         private Injector m_Injector;
@@ -156,6 +168,66 @@ namespace Coffee.UIExtensions
             }
         }
 
+        public UnityEngine.Matrix4x4 matrixValue
+        {
+            get => m_Matrix;
+            set
+            {
+                if (m_Matrix == value) return;
+                m_Matrix = value;
+
+                if (host)
+                {
+                    host.SetDirty();
+                }
+            }
+        }
+
+        public UnityEngine.Matrix4x4[] matrixArrayValue
+        {
+            get => m_MatrixArray;
+            set
+            {
+                if (m_MatrixArray == value) return;
+                m_MatrixArray = value;
+
+                if (host)
+                {
+                    host.SetDirty();
+                }
+            }
+        }
+
+        public float[] floatArrayValue
+        {
+            get => m_FloatArray;
+            set
+            {
+                if (m_FloatArray == value) return;
+                m_FloatArray = value;
+
+                if (host)
+                {
+                    host.SetDirty();
+                }
+            }
+        }
+
+        public UnityEngine.Vector4[] vectorArrayValue
+        {
+            get => m_VectorArray;
+            set
+            {
+                if (m_VectorArray == value) return;
+                m_VectorArray = value;
+
+                if (host)
+                {
+                    host.SetDirty();
+                }
+            }
+        }
+
         internal Injector injector
         {
             get => m_Injector;
@@ -267,6 +339,30 @@ namespace Coffee.UIExtensions
                 case PropertyType.Int:
                     material.SetInt(id, intValue);
                     break;
+                case PropertyType.Matrix:
+                    material.SetMatrix(id, matrixValue);
+                    break;
+                case PropertyType.MatrixArray:
+                    if (0 < matrixArrayValue?.Length)
+                    {
+                        material.SetMatrixArray(id, matrixArrayValue);
+                    }
+
+                    break;
+                case PropertyType.FloatArray:
+                    if (0 < floatArrayValue?.Length)
+                    {
+                        material.SetFloatArray(id, floatArrayValue);
+                    }
+
+                    break;
+                case PropertyType.VectorArray:
+                    if (0 < vectorArrayValue?.Length)
+                    {
+                        material.SetVectorArray(id, vectorArrayValue);
+                    }
+
+                    break;
             }
         }
 
@@ -289,6 +385,30 @@ namespace Coffee.UIExtensions
                     break;
                 case PropertyType.Int:
                     material.SetInt(id, intValue);
+                    break;
+                case PropertyType.Matrix:
+                    material.SetMatrix(id, matrixValue);
+                    break;
+                case PropertyType.MatrixArray:
+                    if (0 < matrixArrayValue?.Length)
+                    {
+                        material.SetMatrixArray(id, matrixArrayValue);
+                    }
+
+                    break;
+                case PropertyType.FloatArray:
+                    if (0 < floatArrayValue?.Length)
+                    {
+                        material.SetFloatArray(id, floatArrayValue);
+                    }
+
+                    break;
+                case PropertyType.VectorArray:
+                    if (0 < vectorArrayValue?.Length)
+                    {
+                        material.SetVectorArray(id, vectorArrayValue);
+                    }
+
                     break;
             }
         }
@@ -313,8 +433,18 @@ namespace Coffee.UIExtensions
                 case PropertyType.Int:
                     intValue = material.GetInt(id);
                     break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                case PropertyType.Matrix:
+                    matrixValue = material.GetMatrix(id);
+                    break;
+                case PropertyType.MatrixArray:
+                    matrixArrayValue = material.GetMatrixArray(id);
+                    break;
+                case PropertyType.FloatArray:
+                    floatArrayValue = material.GetFloatArray(id);
+                    break;
+                case PropertyType.VectorArray:
+                    vectorArrayValue = material.GetVectorArray(id);
+                    break;
             }
         }
 
@@ -337,9 +467,9 @@ namespace Coffee.UIExtensions
                     return Injector.AddInjector<Injectors.Texture>(m_PropertyName, host);
                 case PropertyType.Int:
                     return Injector.AddInjector<Injectors.Int>(m_PropertyName, host);
-                default:
-                    throw new ArgumentOutOfRangeException();
             }
+
+            return null;
         }
 
         public void Init(Material mat)
@@ -350,6 +480,10 @@ namespace Coffee.UIExtensions
             m_Vector = default;
             m_Texture = null;
             m_Int = 0;
+            m_Matrix = default;
+            m_MatrixArray = null;
+            m_FloatArray = null;
+            m_VectorArray = null;
             m_Injector = null;
 #if UNITY_EDITOR
             m_ShouldInit = false;

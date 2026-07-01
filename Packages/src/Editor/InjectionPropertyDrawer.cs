@@ -30,6 +30,14 @@ namespace Coffee.UIExtensions
                     return property.FindPropertyRelative("m_Texture");
                 case PropertyType.Int:
                     return property.FindPropertyRelative("m_Int");
+                case PropertyType.Matrix:
+                    return property.FindPropertyRelative("m_Matrix");
+                case PropertyType.MatrixArray:
+                    return property.FindPropertyRelative("m_MatrixArray");
+                case PropertyType.FloatArray:
+                    return property.FindPropertyRelative("m_FloatArray");
+                case PropertyType.VectorArray:
+                    return property.FindPropertyRelative("m_VectorArray");
                 default:
                     return null;
             }

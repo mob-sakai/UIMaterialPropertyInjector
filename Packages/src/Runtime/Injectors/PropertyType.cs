@@ -8,6 +8,11 @@ namespace Coffee.UIExtensions
         Float,
         Range,
         Texture,
-        Int
+        Int,
+
+        Matrix = 100,
+        MatrixArray = 101,
+        FloatArray = 102,
+        VectorArray = 103
     }
 }

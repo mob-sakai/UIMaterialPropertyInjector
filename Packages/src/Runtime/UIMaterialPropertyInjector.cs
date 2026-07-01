@@ -161,9 +161,9 @@ namespace Coffee.UIExtensions
             }
         }
 
-        public Vector4 vectorValue
+        public UnityEngine.Vector4 vectorValue
         {
-            get => 0 < properties.Count ? properties[0].vectorValue : Vector4.zero;
+            get => 0 < properties.Count ? properties[0].vectorValue : UnityEngine.Vector4.zero;
             set
             {
                 if (properties.Count == 0) return;
@@ -178,6 +178,46 @@ namespace Coffee.UIExtensions
             {
                 if (properties.Count == 0) return;
                 properties[0].textureValue = value;
+            }
+        }
+
+        public UnityEngine.Matrix4x4 matrixValue
+        {
+            get => 0 < properties.Count ? properties[0].matrixValue : UnityEngine.Matrix4x4.identity;
+            set
+            {
+                if (properties.Count == 0) return;
+                properties[0].matrixValue = value;
+            }
+        }
+
+        public UnityEngine.Matrix4x4[] matrixArrayValue
+        {
+            get => 0 < properties.Count ? properties[0].matrixArrayValue : null;
+            set
+            {
+                if (properties.Count == 0) return;
+                properties[0].matrixArrayValue = value;
+            }
+        }
+
+        public float[] floatArrayValue
+        {
+            get => 0 < properties.Count ? properties[0].floatArrayValue : null;
+            set
+            {
+                if (properties.Count == 0) return;
+                properties[0].floatArrayValue = value;
+            }
+        }
+
+        public UnityEngine.Vector4[] vectorArrayValue
+        {
+            get => 0 < properties.Count ? properties[0].vectorArrayValue : null;
+            set
+            {
+                if (properties.Count == 0) return;
+                properties[0].vectorArrayValue = value;
             }
         }
 
@@ -543,6 +583,26 @@ namespace Coffee.UIExtensions
         public void SetTexture(string propertyName, UnityEngine.Texture value)
         {
             GetOrAddProperty(propertyName, PropertyType.Texture).textureValue = value;
+        }
+
+        public void SetMatrix(string propertyName, Matrix4x4 value)
+        {
+            GetOrAddProperty(propertyName, PropertyType.Matrix).matrixValue = value;
+        }
+
+        public void SetMatrixArray(string propertyName, Matrix4x4[] value)
+        {
+            GetOrAddProperty(propertyName, PropertyType.MatrixArray).matrixArrayValue = value;
+        }
+
+        public void SetFloatArray(string propertyName, float[] value)
+        {
+            GetOrAddProperty(propertyName, PropertyType.FloatArray).floatArrayValue = value;
+        }
+
+        public void SetVectorArray(string propertyName, Vector4[] value)
+        {
+            GetOrAddProperty(propertyName, PropertyType.VectorArray).vectorArrayValue = value;
         }
 
         /// <summary>

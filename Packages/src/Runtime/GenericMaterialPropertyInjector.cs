@@ -30,16 +30,10 @@ namespace Coffee.UIExtensions
             base.OnEnable();
             RestoreMaterial();
             InjectIfNeeded();
-#if UNITY_EDITOR
-            SyncMaterialPropertySystem.Register(this);
-#endif
         }
 
         protected override void OnDisable()
         {
-#if UNITY_EDITOR
-            SyncMaterialPropertySystem.Unregister(this);
-#endif
             RestoreMaterial();
             base.OnDisable();
         }
@@ -83,9 +77,6 @@ namespace Coffee.UIExtensions
                 properties[i].Inject(s_Materials);
             }
 
-#if UNITY_EDITOR
-            SyncMaterialPropertySystem.UpdateMaterialDirtyCount(_material);
-#endif
             s_Materials.Clear();
             m_Accessor.Set(_material);
             Profiler.EndSample();

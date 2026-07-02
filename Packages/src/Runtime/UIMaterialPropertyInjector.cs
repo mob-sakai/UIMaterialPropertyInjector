@@ -331,6 +331,9 @@ namespace Coffee.UIExtensions
 
             MaterialRepository.Get(hash, ref _material, m => new Material(m)
             {
+#if UNITY_EDITOR && UNITY_2022_1_OR_NEWER
+                parent = m,
+#endif
                 name = $"[Injected] {m.name}",
                 hideFlags = HideFlags.DontSave | HideFlags.NotEditable
             }, baseMaterial);
@@ -530,6 +533,13 @@ namespace Coffee.UIExtensions
             _shouldRebuild = true;
         }
 
+        public void Inject(Material mat)
+        {
+            for (var i = 0; i < properties.Count; i++)
+            {
+                properties[i].Inject(mat);
+            }
+        }
 
         /// <summary>
         /// Remove all properties.

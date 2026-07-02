@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEngine;
 
 namespace Coffee.UIExtensions
 {
@@ -22,7 +23,24 @@ namespace Coffee.UIExtensions
             serializedObject.ApplyModifiedProperties();
 
             base.OnInspectorGUI();
-            SyncMaterialPropertySystem.instance.OnInspectorGUI(target as GenericMaterialPropertyInjector);
+
+            if (target is GenericMaterialPropertyInjector injector)
+            {
+                var labelWidth = EditorGUIUtility.labelWidth;
+                EditorGUIUtility.labelWidth = 70;
+                EditorGUILayout.LabelField("Debug", EditorStyles.boldLabel);
+                EditorGUILayout.ObjectField("[Injected]", injector.material, typeof(Material), false);
+
+                EditorGUILayout.BeginHorizontal();
+                EditorGUILayout.ObjectField("[Base]", injector.baseMaterial, typeof(Material), false);
+                if (GUILayout.Button("Inject", GUILayout.Width(50)))
+                {
+                    injector.Inject(injector.baseMaterial);
+                }
+
+                EditorGUILayout.EndHorizontal();
+                EditorGUIUtility.labelWidth = labelWidth;
+            }
         }
     }
 }

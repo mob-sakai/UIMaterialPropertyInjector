@@ -24,7 +24,7 @@ namespace Coffee.UIExtensions.Injectors
         protected override void OnValidate()
         {
             SetDirty();
-            if (host)
+            if (host != null)
             {
                 host.SetTexture(propertyName, value);
             }

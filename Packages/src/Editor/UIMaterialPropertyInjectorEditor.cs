@@ -33,7 +33,7 @@ namespace Coffee.UIExtensions
         {
             Profiler.BeginSample("(MPI)[MPIEditor] OnInspectorGUI");
             var host = target as UIMaterialPropertyInjector;
-            if (host)
+            if (host != null)
             {
                 host.RebuildPropertiesIfNeeded();
             }
@@ -59,7 +59,7 @@ namespace Coffee.UIExtensions
         private void ResetCallback()
         {
             var current = serializedObject.targetObject as UIMaterialPropertyInjector;
-            if (!current) return;
+            if (current == null) return;
 
             var objects = current.GetComponentsInChildren<Injector>(1)
                 .OfType<Object>()

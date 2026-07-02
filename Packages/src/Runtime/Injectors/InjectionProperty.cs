@@ -81,7 +81,7 @@ namespace Coffee.UIExtensions
                 if (m_Int == value) return;
                 m_Int = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -101,7 +101,7 @@ namespace Coffee.UIExtensions
                 if (Mathf.Approximately(m_Float, value)) return;
                 m_Float = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -121,7 +121,7 @@ namespace Coffee.UIExtensions
                 if (m_Color == value) return;
                 m_Color = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -141,7 +141,7 @@ namespace Coffee.UIExtensions
                 if (m_Vector == value) return;
                 m_Vector = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -161,7 +161,7 @@ namespace Coffee.UIExtensions
                 if (m_Texture == value) return;
                 m_Texture = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -176,7 +176,7 @@ namespace Coffee.UIExtensions
                 if (m_Matrix == value) return;
                 m_Matrix = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -191,7 +191,7 @@ namespace Coffee.UIExtensions
                 if (m_MatrixArray == value) return;
                 m_MatrixArray = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -206,7 +206,7 @@ namespace Coffee.UIExtensions
                 if (m_FloatArray == value) return;
                 m_FloatArray = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }
@@ -221,7 +221,7 @@ namespace Coffee.UIExtensions
                 if (m_VectorArray == value) return;
                 m_VectorArray = value;
 
-                if (host)
+                if (host != null)
                 {
                     host.SetDirty();
                 }

@@ -56,7 +56,7 @@ namespace Coffee.UIExtensions
                 if (host.animatable)
                 {
                     // Animatable: Create new Injector if needed and rebind it.
-                    if (!ip.injector && allowAddInjector)
+                    if (ip.injector == null && allowAddInjector)
                     {
                         Profiler.BeginSample("(MPI)[InjectorList] Rebuild > AddInjector");
                         ip.injector = ip.AddInjector(host);

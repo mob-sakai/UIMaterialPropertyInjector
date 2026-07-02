@@ -35,7 +35,7 @@ namespace Coffee.UIExtensions
 
         protected void SetDirty()
         {
-            if (host)
+            if (host != null)
             {
                 host.SetDirty();
             }
@@ -43,7 +43,7 @@ namespace Coffee.UIExtensions
 
         public void SetHost(UIMaterialPropertyInjector newHost)
         {
-            if (m_Host == newHost || !newHost) return;
+            if (m_Host == newHost || newHost == null) return;
             m_Host = newHost;
             transform.SetParent(newHost.transform, false);
 

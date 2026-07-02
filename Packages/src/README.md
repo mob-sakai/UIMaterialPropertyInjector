@@ -1,4 +1,4 @@
-# <img alt="logo" height="26" src="https://github.com/mob-sakai/mob-sakai/assets/12690315/1cc2c0f3-32bf-4635-a27e-d3f906aaf9ab"/> UI Material Property Injector
+# <img alt="logo" height="26" src="https://github.com/mob-sakai/mob-sakai/assets/12690315/1cc2c0f3-32bf-4635-a27e-d3f906aaf9ab"/> UI Material Property Injector  <!-- omit in toc -->
 
 [![](https://img.shields.io/npm/v/com.coffee.ui-material-property-injector?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.coffee.ui-material-property-injector/)
 [![](https://img.shields.io/github/v/release/mob-sakai/UIMaterialPropertyInjector?include_prereleases)](https://github.com/mob-sakai/UIMaterialPropertyInjector/releases)
@@ -10,11 +10,11 @@
 [![](https://img.shields.io/github/watchers/mob-sakai/UIMaterialPropertyInjector.svg?style=social&label=Watch)](https://github.com/mob-sakai/UIMaterialPropertyInjector/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
 
-<< [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🤝 Contributing](#-contributing) >>
+<< [📝 Description](#-description) | [📌 Key Features](#-key-features) | [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🤝 Contributing](#-contributing) >>
 
 <br><br>
 
-## 📝 Description
+## 📝 Description <!-- omit in toc -->
 
 In Unity UI, UI elements typically do not provide an accessible MaterialPropertyBlock. To change material properties via animations, like with MeshRenderer, you usually need to create custom components, which are often shader-specific.
 
@@ -30,7 +30,30 @@ This package provides a component that allows easy modification of material prop
 
 ![](https://github.com/user-attachments/assets/fcc54340-9fa5-4a7d-bc5b-3ccd7b317502)
 
-**Key Features:**
+- [📌 Key Features](#-key-features)
+- [🎮 Demo](#-demo)
+- [⚙ Installation](#-installation)
+    - [Install via OpenUPM](#install-via-openupm)
+    - [Install via UPM (with Package Manager UI)](#install-via-upm-with-package-manager-ui)
+    - [Install via UPM (Manually)](#install-via-upm-manually)
+    - [Install as Embedded Package](#install-as-embedded-package)
+- [🚀 Usage](#-usage)
+  - [Component: UIMaterialPropertyInjector](#component-uimaterialpropertyinjector)
+  - [Component: RendererMaterialPropertyInjector](#component-renderermaterialpropertyinjector)
+  - [Component: GenericMaterialPropertyInjector](#component-genericmaterialpropertyinjector)
+  - [Component: UIMaterialPropertyTweener](#component-uimaterialpropertytweener)
+- [🤝 Contributing](#-contributing)
+  - [Issues](#issues)
+  - [Pull Requests](#pull-requests)
+  - [Support](#support)
+- [License](#license)
+- [Author](#author)
+- [See Also](#see-also)
+
+
+<br><br>
+
+## 📌 Key Features
 
 - Change UI material properties without shader-specific custom components.
 - Modify material properties:
@@ -121,11 +144,11 @@ _This package requires **Unity 2019.4 or later**._
 
 <br><br>
 
-#### UI Material Property Injector
+### Component: UIMaterialPropertyInjector
 
-Change the material properties of the CanvasRenderer.
+Change the material properties for the `CanvasRenderer`.
 
-![](https://github.com/mob-sakai/mob-sakai/assets/12690315/733254f3-9062-460c-ae88-2e01a080f072)
+![](https://github.com/mob-sakai/mob-sakai/releases/download/docs/1782977776337.png)
 
 - **Reset Values On Enable:** Reset injector values with the material properties when the component is enabled.
 - **Animatable:** Makes it animatable in the Animation view.
@@ -136,18 +159,51 @@ Change the material properties of the CanvasRenderer.
 
 <br><br>
 
-#### UI Material Property Tweener
+### Component: RendererMaterialPropertyInjector
+
+Change the material properties for the `Renderer` via `MaterialPropertyBlock`.
+
+![](https://github.com/mob-sakai/mob-sakai/releases/download/docs/1782977894853.png)
+
+- Inherits the same settings as `UIMaterialPropertyInjector`.
+- Uses the `Renderer`'s shared material in edit mode and material instance in play mode.
+- Injects the configured properties directly into the renderer's property block.
+
+<br><br>
+
+### Component: GenericMaterialPropertyInjector
+
+Change the material properties for other components via a `MaterialAccessor`.
+
+![](https://github.com/mob-sakai/mob-sakai/releases/download/docs/1782977862387.png)
+
+- **Target:** The component that gets/sets the material.
+  - **Getter:** The accessor method or property used to read the material.
+  - **Setter:** The accessor method or property used to write the material.
+- Inherits the same settings as `UIMaterialPropertyInjector`.
+- **Debug:** Shows the injected material and base material, and lets you inject properties to the base material manually.
+
+<br><br>
+
+### Component: UIMaterialPropertyTweener
 
 A tweener to change the material properties.
 
-![](https://github.com/mob-sakai/mob-sakai/assets/12690315/82676be2-0f98-4bb4-bc1d-203a70b85a85)
+![](https://github.com/mob-sakai/mob-sakai/releases/download/docs/1782977943898.png)
 
 - **Target:** The target `UIMaterialPropertyInjector` to tween.
+- **Direction:** The playback direction of the tween.
 - **Curve:** The curve to tween the properties.
+- **Separate Reverse Curve:** Use a separate curve for reverse playback.
 - **Delay:** The delay in seconds before the tween starts.
 - **Duration:** The duration in seconds of the tween.
 - **Interval:** The interval in seconds between each loop.
-- **Restart On Enable:** Whether to restart the tween when enabled.
+- **Play On Enable:** The playback mode when the component is enabled.
+  - `None`: Do not play automatically.
+  - `Play Forward`: Play forward.
+  - `Play Reverse`: Play reverse.
+  - `Play`: Play with the current direction.
+- **Reset Time On Enable:** Whether to reset the tweening time when enabled.
 - **Wrap Mode:** The wrap mode of the tween.
   - `Clamp`: Clamp the tween value, not loop.
   - `Loop`: Loop the tween value.

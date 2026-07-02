@@ -1,4 +1,3 @@
-using System;
 using Coffee.UIMaterialPropertyInjectorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -102,7 +101,7 @@ namespace Coffee.UIExtensions
         public void SetTweenerWrapMode(int mode)
         {
             m_Tweener.wrapMode = (UIMaterialPropertyTweener.WrapMode)mode;
-            m_Tweener.Restart();
+            m_Tweener.ResetTime();
         }
 
         public void SetTweenerFrom(float value)

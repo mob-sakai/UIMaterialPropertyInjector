@@ -5,7 +5,14 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "2643b94fee7505d1422eac6ae80d0771578c1e8c"
+      "hash": "4817f6a072a57c5784826c79c0707f528e8e935c"
+    },
+    "com.coffee.minimal-resource": {
+      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/MinimalResource",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4817f6a072a57c5784826c79c0707f528e8e935c"
     },
     "com.coffee.nano-monitor": {
       "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/NanoMonitor",
@@ -14,14 +21,21 @@
       "dependencies": {
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "2643b94fee7505d1422eac6ae80d0771578c1e8c"
+      "hash": "4817f6a072a57c5784826c79c0707f528e8e935c"
     },
     "com.coffee.sub-asset-editor": {
       "version": "https://github.com/mob-sakai/SubAssetEditor.git",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "5197790679abeca082f3c40ebdc90b1aff20f3ab"
+      "hash": "3da66f3715f3b4ce63284a9a8b15a854a38c112f"
+    },
+    "com.coffee.symbolic-linker": {
+      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/SymbolicLinker",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "4817f6a072a57c5784826c79c0707f528e8e935c"
     },
     "com.coffee.ui-material-property-injector": {
       "version": "file:src",
@@ -44,6 +58,15 @@
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.6"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.ide.visualstudio": {
+      "version": "2.0.18",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.test-framework": "1.1.9"
       },
       "url": "https://packages.unity.com"
     },

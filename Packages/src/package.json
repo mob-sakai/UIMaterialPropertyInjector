@@ -20,5 +20,12 @@
   },
   "dependencies": {
     "com.unity.ugui": "1.0.0"
-  }
+  },
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "Demo",
+      "path": "Samples~/Demo"
+    }
+  ]
 }

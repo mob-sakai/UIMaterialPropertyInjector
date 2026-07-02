@@ -8,6 +8,9 @@ namespace Coffee.UIExtensions
     [Icon("Packages/com.coffee.ui-material-property-injector/Icons/UIMaterialPropertyInjectorIcon.png")]
     public class UIMaterialPropertyTweener : MonoBehaviour, ISerializationCallbackReceiver
     {
+        /// <summary>
+        /// Specifies how delta time is sampled for tween updates.
+        /// </summary>
         public enum UpdateMode
         {
             Normal,
@@ -15,6 +18,9 @@ namespace Coffee.UIExtensions
             Manual
         }
 
+        /// <summary>
+        /// Specifies how tween time behaves at both ends.
+        /// </summary>
         public enum WrapMode
         {
             Clamp,
@@ -23,12 +29,18 @@ namespace Coffee.UIExtensions
             PingPong
         }
 
+        /// <summary>
+        /// Playback direction of the tween.
+        /// </summary>
         public enum Direction
         {
             Forward,
             Reverse
         }
 
+        /// <summary>
+        /// Auto-play behavior when this component becomes enabled.
+        /// </summary>
         public enum PlayOnEnable
         {
             None,
@@ -102,6 +114,9 @@ namespace Coffee.UIExtensions
         private float _rate = -1;
         private float _time;
 
+        /// <summary>
+        /// Default material used to initialize pair values.
+        /// </summary>
         public Material defaultMaterialForRendering => m_Target ? m_Target.defaultMaterialForRendering : null;
 
         /// <summary>
@@ -109,6 +124,9 @@ namespace Coffee.UIExtensions
         /// </summary>
         public UIMaterialPropertyInjector target => m_Target;
 
+        /// <summary>
+        /// Property pairs used for interpolation.
+        /// </summary>
         public InjectionPropertyPair[] propertyPairs => m_PropertyPairs;
 
         /// <summary>
@@ -138,6 +156,7 @@ namespace Coffee.UIExtensions
                 var currentCurve = curve;
                 if (separateReverseCurve)
                 {
+                    // Decide whether to evaluate reverse curve from current playback phase.
                     switch (wrapMode)
                     {
                         case WrapMode.Clamp:
@@ -249,36 +268,54 @@ namespace Coffee.UIExtensions
             set => m_ResetTimeOnEnable = value;
         }
 
+        /// <summary>
+        /// Legacy alias of <see cref="playOnEnable"/> for forward playback only.
+        /// </summary>
         public bool restartOnEnable
         {
             get => m_PlayOnEnable == PlayOnEnable.PlayForward;
             set => m_PlayOnEnable = value ? PlayOnEnable.PlayForward : PlayOnEnable.None;
         }
 
+        /// <summary>
+        /// Wrap mode of tween time progression.
+        /// </summary>
         public WrapMode wrapMode
         {
             get => m_WrapMode;
             set => m_WrapMode = value;
         }
 
+        /// <summary>
+        /// Time source mode for automatic updates.
+        /// </summary>
         public UpdateMode updateMode
         {
             get => m_UpdateMode;
             set => m_UpdateMode = value;
         }
 
+        /// <summary>
+        /// Curve used for forward (or shared) evaluation.
+        /// </summary>
         public AnimationCurve curve
         {
             get => m_Curve;
             set => m_Curve = value;
         }
 
+        /// <summary>
+        /// Whether reverse playback uses a separate curve.
+        /// </summary>
         public bool separateReverseCurve
         {
             get => m_SeparateReverseCurve;
             set => m_SeparateReverseCurve = value;
         }
 
+        /// <summary>
+        /// Curve used only when reverse evaluation is separated.
+        /// </summary>
         public AnimationCurve reverseCurve
         {
             get => m_ReverseCurve;
@@ -390,11 +427,20 @@ namespace Coffee.UIExtensions
 
         [Obsolete(
             "UIMaterialPropertyTweener.Restart has been deprecated. Use UIMaterialPropertyTweener.ResetTime instead (UnityUpgradable) -> ResetTime")]
+        /// <summary>
+        /// Deprecated alias of <see cref="ResetTime()"/>.
+        /// </summary>
         public void Restart()
         {
             ResetTime();
         }
 
+        /// <summary>
+        /// Starts playback with optional time reset using current <see cref="direction"/>.
+        /// </summary>
+        /// <param name="resetTime">
+        /// True to reset time before playing.
+        /// </param>
         public void Play(bool resetTime)
         {
             if (resetTime)
@@ -405,11 +451,20 @@ namespace Coffee.UIExtensions
             Play();
         }
 
+        /// <summary>
+        /// Starts playback without changing direction.
+        /// </summary>
         public void Play()
         {
             _isPaused = false;
         }
 
+        /// <summary>
+        /// Starts forward playback with optional reset.
+        /// </summary>
+        /// <param name="resetTime">
+        /// True to reset time to the forward start.
+        /// </param>
         public void PlayForward(bool resetTime)
         {
             if (resetTime)
@@ -420,12 +475,21 @@ namespace Coffee.UIExtensions
             PlayForward();
         }
 
+        /// <summary>
+        /// Starts forward playback.
+        /// </summary>
         public void PlayForward()
         {
             direction = Direction.Forward;
             _isPaused = false;
         }
 
+        /// <summary>
+        /// Starts reverse playback with optional reset.
+        /// </summary>
+        /// <param name="resetTime">
+        /// True to reset time to the reverse start.
+        /// </param>
         public void PlayReverse(bool resetTime)
         {
             if (resetTime)
@@ -436,28 +500,49 @@ namespace Coffee.UIExtensions
             PlayReverse();
         }
 
+        /// <summary>
+        /// Starts reverse playback.
+        /// </summary>
         public void PlayReverse()
         {
             direction = Direction.Reverse;
             _isPaused = false;
         }
 
+        /// <summary>
+        /// Stops playback and resets time to start.
+        /// </summary>
         public void Stop()
         {
             _isPaused = true;
             ResetTime();
         }
 
+        /// <summary>
+        /// Pauses or resumes playback state.
+        /// </summary>
+        /// <param name="pause">
+        /// True to pause; false to unpause.
+        /// </param>
         public void SetPause(bool pause)
         {
             _isPaused = pause;
         }
 
+        /// <summary>
+        /// Resets tween time to the beginning.
+        /// </summary>
         public void ResetTime()
         {
             SetTime(0);
         }
 
+        /// <summary>
+        /// Resets tween time based on the specified direction.
+        /// </summary>
+        /// <param name="dir">
+        /// Direction used to choose reset position.
+        /// </param>
         public void ResetTime(Direction dir)
         {
             if (dir == Direction.Forward)
@@ -470,12 +555,24 @@ namespace Coffee.UIExtensions
             }
         }
 
+        /// <summary>
+        /// Sets absolute tween time and re-evaluates properties immediately.
+        /// </summary>
+        /// <param name="sec">
+        /// Time in seconds.
+        /// </param>
         public void SetTime(float sec)
         {
             _time = 0;
             UpdateTime(sec);
         }
 
+        /// <summary>
+        /// Advances tween time by delta seconds and applies interpolated values.
+        /// </summary>
+        /// <param name="deltaSec">
+        /// Signed delta time in seconds.
+        /// </param>
         public void UpdateTime(float deltaSec)
         {
             var prevTweening = isTweening;
@@ -483,16 +580,19 @@ namespace Coffee.UIExtensions
             _time += deltaSec;
             if (isLoop)
             {
+                // Keep time continuous even when stepping backward over loop boundary.
                 if (_time < 0)
                 {
                     _time = Mathf.Repeat(_time, totalTime);
                 }
                 else if (delay < _time)
                 {
+                    // Exclude delay region from modulo operation after playback has started.
                     _time = Mathf.Repeat(_time - delay, totalTime - delay) + delay;
                 }
                 else if (deltaSec < 0 && delay <= _time - deltaSec)
                 {
+                    // Handle reverse-step crossing from active region back into delay region.
                     _time = Mathf.Repeat(_time - delay, totalTime - delay) + delay;
                 }
             }
@@ -515,15 +615,18 @@ namespace Coffee.UIExtensions
                     _time = t + delay;
                     break;
                 case WrapMode.Loop:
+                    // Repeat active segment (duration + interval).
                     t = Mathf.Repeat(t, duration + interval);
                     _time = t + delay;
                     break;
                 case WrapMode.PingPongOnce:
+                    // Single bounce in [0, duration*2 + interval].
                     t = Mathf.Clamp(t, 0, duration * 2 + interval);
                     _time = t + delay;
                     t = Mathf.PingPong(t, duration + interval * 0.5f);
                     break;
                 case WrapMode.PingPong:
+                    // Continuous bounce; second half including terminal interval maps to idle (0).
                     t = Mathf.Repeat(t, (duration + interval) * 2);
                     _time = t + delay;
                     t = t < duration * 2 + interval
@@ -535,6 +638,9 @@ namespace Coffee.UIExtensions
             rate = Mathf.Clamp(t, 0, duration) / duration;
         }
 
+        /// <summary>
+        /// Resets all tween pair values from the target's default material.
+        /// </summary>
         public void ResetPropertiesToDefault()
         {
             if (!m_Target) return;
@@ -546,18 +652,40 @@ namespace Coffee.UIExtensions
             }
         }
 
+        /// <summary>
+        /// Pair of source and destination material properties for tweening.
+        /// </summary>
         [Serializable]
         public class InjectionPropertyPair
         {
             [SerializeField] private InjectionProperty m_From;
             [SerializeField] private InjectionProperty m_To;
 
+            /// <summary>
+            /// Starting value of interpolation.
+            /// </summary>
             public InjectionProperty from => m_From;
+
+            /// <summary>
+            /// Ending value of interpolation.
+            /// </summary>
             public InjectionProperty to => m_To;
 
+            /// <summary>
+            /// True when either end requires initialization from material.
+            /// </summary>
             public bool shouldInit => from.propertyType == PropertyType.Undefined
                                       || to.propertyType == PropertyType.Undefined;
 
+            /// <summary>
+            /// Evaluates this pair and writes value into host by interpolation rate.
+            /// </summary>
+            /// <param name="host">
+            /// Destination injector host.
+            /// </param>
+            /// <param name="rate">
+            /// Interpolation factor in range [0, 1].
+            /// </param>
             public void SetValue(UIMaterialPropertyInjector host, float rate)
             {
                 var name = m_From.propertyName;

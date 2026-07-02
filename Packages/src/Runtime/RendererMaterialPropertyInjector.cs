@@ -4,6 +4,9 @@ using UnityEngine.Profiling;
 
 namespace Coffee.UIExtensions
 {
+    /// <summary>
+    /// Injects material properties into a <see cref="Renderer"/> via <see cref="MaterialPropertyBlock"/>.
+    /// </summary>
     [RequireComponent(typeof(Renderer))]
     [ExecuteAlways]
     [Icon("Packages/com.coffee.ui-material-property-injector/Icons/UIMaterialPropertyInjectorIcon.png")]
@@ -12,8 +15,19 @@ namespace Coffee.UIExtensions
         private static readonly InternalObjectPool<MaterialPropertyBlock> s_MpbPool =
             new InternalObjectPool<MaterialPropertyBlock>(() => new MaterialPropertyBlock(), _ => true, x => x.Clear());
 
+        /// <summary>
+        /// Cached target renderer.
+        /// </summary>
         public new Renderer renderer => _renderer ? _renderer : _renderer = GetComponent<Renderer>();
+
+        /// <summary>
+        /// Current material used for injection.
+        /// </summary>
         public override Material material => Application.isPlaying ? renderer.material : renderer.sharedMaterial;
+
+        /// <summary>
+        /// Base material before runtime injection.
+        /// </summary>
         public override Material defaultMaterialForRendering => renderer.sharedMaterial;
 
         private Renderer _renderer;

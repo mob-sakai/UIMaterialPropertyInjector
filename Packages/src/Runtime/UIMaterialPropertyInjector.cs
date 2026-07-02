@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Coffee.UIMaterialPropertyInjectorInternal;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
@@ -312,12 +314,14 @@ namespace Coffee.UIExtensions
             var pHash = 0L;
             for (var i = 0; i < properties.Count; i++)
             {
+                // Hash only property identities to share materials across equal layouts.
                 pHash += (uint)properties[i].id;
             }
 
             Profiler.EndSample();
 
             Profiler.BeginSample("(MPI)[MPInjector] GetModifiedMaterial > Get");
+            // sharingGroupId != 0 enforces cross-instance sharing; otherwise keep material per-instance.
             var groupId = sharingGroupId != 0 ? sharingGroupId : (uint)pHash.GetHashCode();
             var localId = sharingGroupId != 0 ? 0 : (uint)GetHashCode();
             var hash = new Hash128((uint)baseMaterial.GetHashCode(), groupId, localId, 0);
@@ -393,6 +397,8 @@ namespace Coffee.UIExtensions
 
                 // Find injector in children.
                 if (!transform.GetChild(i).TryGetComponent<Injector>(out var injector)) continue;
+
+                // Keep injector tree synchronized with serialized property list.
                 if (animatable && m_Properties.TryGet(injector.id, out var ip))
                 {
                     // Found: Rebind the injector
@@ -585,21 +591,33 @@ namespace Coffee.UIExtensions
             GetOrAddProperty(propertyName, PropertyType.Texture).textureValue = value;
         }
 
+        /// <summary>
+        /// Set matrix property.
+        /// </summary>
         public void SetMatrix(string propertyName, Matrix4x4 value)
         {
             GetOrAddProperty(propertyName, PropertyType.Matrix).matrixValue = value;
         }
 
+        /// <summary>
+        /// Set matrix-array property.
+        /// </summary>
         public void SetMatrixArray(string propertyName, Matrix4x4[] value)
         {
             GetOrAddProperty(propertyName, PropertyType.MatrixArray).matrixArrayValue = value;
         }
 
+        /// <summary>
+        /// Set float-array property.
+        /// </summary>
         public void SetFloatArray(string propertyName, float[] value)
         {
             GetOrAddProperty(propertyName, PropertyType.FloatArray).floatArrayValue = value;
         }
 
+        /// <summary>
+        /// Set vector-array property.
+        /// </summary>
         public void SetVectorArray(string propertyName, Vector4[] value)
         {
             GetOrAddProperty(propertyName, PropertyType.VectorArray).vectorArrayValue = value;

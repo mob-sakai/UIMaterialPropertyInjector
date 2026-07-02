@@ -4,6 +4,9 @@ using UnityEngine;
 
 namespace Coffee.UIExtensions
 {
+    /// <summary>
+    /// Reflection-based accessor that gets/sets a <see cref="Material"/> from another component.
+    /// </summary>
     [Serializable]
     public class MaterialAccessor
     {
@@ -18,24 +21,48 @@ namespace Coffee.UIExtensions
         private Func<Material> _getter;
         private Action<Material> _setter;
 
+        /// <summary>
+        /// Gets the current material from the configured target component.
+        /// </summary>
+        /// <returns>
+        /// The material returned by the target getter, or null when the accessor is not valid.
+        /// </returns>
         public Material Get()
         {
             if (!IsValid()) return null;
             return _getter.Invoke();
         }
 
+        /// <summary>
+        /// Sets a material to the configured target component.
+        /// </summary>
+        /// <param name="material">
+        /// Material instance to apply.
+        /// </param>
         public void Set(Material material)
         {
             if (!IsValid()) return;
             _setter.Invoke(material);
         }
 
+        /// <summary>
+        /// Invalidates cached delegates so they are rebuilt on next initialize.
+        /// </summary>
         public void SetDirty()
         {
             _getter = null;
             _setter = null;
         }
 
+        /// <summary>
+        /// Initializes accessor bindings if needed.
+        /// </summary>
+        /// <param name="parent">
+        /// GameObject that contains the target component.
+        /// </param>
+        /// <returns>
+        /// True when accessor bindings are valid after this call.
+        /// </returns>
         public bool InitializeIfNeeded(GameObject parent)
         {
             if (IsValid()) return true;
@@ -62,6 +89,7 @@ namespace Coffee.UIExtensions
 
             try
             {
+                // Bind method by name once and cache delegate to avoid per-frame reflection.
                 var method = _target.GetType().GetMethod(m_Getter, k_Flags);
                 _getter = Delegate.CreateDelegate(typeof(Func<Material>), _target, method) as Func<Material>;
             }
@@ -73,6 +101,7 @@ namespace Coffee.UIExtensions
 
             try
             {
+                // Setter delegate is validated symmetrically with getter for consistency.
                 var method = _target.GetType().GetMethod(m_Setter, k_Flags);
                 _setter = Delegate.CreateDelegate(typeof(Action<Material>), _target, method) as Action<Material>;
             }
@@ -85,6 +114,9 @@ namespace Coffee.UIExtensions
             return true;
         }
 
+        /// <summary>
+        /// Returns whether the accessor currently points to a valid target and delegates.
+        /// </summary>
         public bool IsValid()
         {
             return _target && (Component)_getter?.Target == _target && (Component)_setter?.Target == _target;

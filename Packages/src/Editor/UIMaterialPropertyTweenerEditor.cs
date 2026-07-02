@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -31,20 +33,29 @@ namespace Coffee.UIExtensions
     [CustomEditor(typeof(UIMaterialPropertyTweener))]
     internal class UIMaterialPropertyTweenerEditor : Editor
     {
+        private SerializedProperty _direction;
         private SerializedProperty _curve;
+        private SerializedProperty _separateReverseCurve;
+        private SerializedProperty _reverseCurve;
         private SerializedProperty _delay;
         private SerializedProperty _duration;
         private SerializedProperty _interval;
         private InjectionPropertyListDrawer _list;
-        private SerializedProperty _restartOnEnable;
+        private SerializedProperty _playOnEnable;
+        private SerializedProperty _resetTimeOnEnable;
         private SerializedProperty _target;
         private SerializedProperty _updateMode;
         private SerializedProperty _wrapMode;
+        private readonly TweenPlayer _tweenPlayer = new TweenPlayer();
 
         private void OnEnable()
         {
+            _direction = serializedObject.FindProperty("m_Direction");
             _curve = serializedObject.FindProperty("m_Curve");
-            _restartOnEnable = serializedObject.FindProperty("m_RestartOnEnable");
+            _separateReverseCurve = serializedObject.FindProperty("m_SeparateReverseCurve");
+            _reverseCurve = serializedObject.FindProperty("m_ReverseCurve");
+            _playOnEnable = serializedObject.FindProperty("m_PlayOnEnable");
+            _resetTimeOnEnable = serializedObject.FindProperty("m_ResetTimeOnEnable");
             _delay = serializedObject.FindProperty("m_Delay");
             _duration = serializedObject.FindProperty("m_Duration");
             _interval = serializedObject.FindProperty("m_Interval");
@@ -58,6 +69,13 @@ namespace Coffee.UIExtensions
                 draggable = false,
                 elementHeight = (EditorGUIUtility.singleLineHeight + 2) * 2 + 2
             };
+
+            _tweenPlayer.OnEnable(OnTweenEvent);
+        }
+
+        private void OnDisable()
+        {
+            _tweenPlayer.OnDisable();
         }
 
         public override void OnInspectorGUI()
@@ -66,52 +84,33 @@ namespace Coffee.UIExtensions
             serializedObject.UpdateIfRequiredOrScript();
             EditorGUILayout.PropertyField(_target);
             EditorGUI.BeginDisabledGroup(!_target.objectReferenceValue);
+
+            EditorGUILayout.PropertyField(_direction);
             EditorGUILayout.PropertyField(_curve);
+
+            var pos = EditorGUILayout.GetControlRect();
+            var rect = new Rect(pos.x, pos.y, EditorGUIUtility.labelWidth + 20, pos.height);
+            EditorGUI.PropertyField(rect, _separateReverseCurve);
+            if (_separateReverseCurve.boolValue)
+            {
+                rect.x += rect.width;
+                rect.width = pos.width - rect.width;
+                EditorGUI.PropertyField(rect, _reverseCurve, GUIContent.none);
+            }
+
             EditorGUILayout.PropertyField(_delay);
             EditorGUILayout.PropertyField(_duration);
             EditorGUILayout.PropertyField(_interval);
-            EditorGUILayout.PropertyField(_restartOnEnable);
+            EditorGUILayout.PropertyField(_playOnEnable);
+            EditorGUILayout.PropertyField(_resetTimeOnEnable);
             EditorGUILayout.PropertyField(_wrapMode);
             EditorGUILayout.PropertyField(_updateMode);
             _list.DoLayoutList();
             EditorGUI.EndDisabledGroup();
             serializedObject.ApplyModifiedProperties();
 
-            DrawPlayer(target as UIMaterialPropertyTweener);
+            _tweenPlayer.Draw();
             Profiler.EndSample();
-        }
-
-        private void DrawPlayer(UIMaterialPropertyTweener tweener)
-        {
-            if (!tweener) return;
-
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUI.BeginDisabledGroup(!Application.isPlaying);
-            var icon = EditorGUIUtility.IconContent("icons/playbutton.png");
-            if (GUILayout.Button(icon, "IconButton", GUILayout.Width(20)))
-            {
-                tweener.SetTime(0);
-            }
-
-            EditorGUI.EndDisabledGroup();
-
-            EditorGUI.BeginChangeCheck();
-            var totalTime = tweener.totalTime;
-            var time = tweener.time;
-            time = GUILayout.HorizontalSlider(time, 0, totalTime, GUILayout.ExpandWidth(true));
-            if (EditorGUI.EndChangeCheck())
-            {
-                tweener.SetTime(time);
-            }
-
-            GUILayout.Label($"{time:N2}/{totalTime:N2}", GUILayout.ExpandWidth(false));
-            EditorGUILayout.EndHorizontal();
-
-            if (Application.isPlaying && tweener.isActiveAndEnabled)
-            {
-                Repaint();
-            }
         }
 
         private static void PostAddElement(SerializedProperty prop, ShaderProperty s)
@@ -134,6 +133,60 @@ namespace Coffee.UIExtensions
 
             Undo.RecordObject(current, "Reset Values");
             current.ResetPropertiesToDefault();
+        }
+
+        private void OnTweenEvent(TweenPlayer.Event ev)
+        {
+            switch (ev)
+            {
+                case TweenPlayer.Event.Fetch:
+
+                    if (target is UIMaterialPropertyTweener current)
+                    {
+                        _tweenPlayer.totalTime = current.totalTime;
+                        _tweenPlayer.time = current.time;
+                        _tweenPlayer.delay = current.delay;
+                        _tweenPlayer.duration = current.duration;
+                        _tweenPlayer.interval = current.interval;
+                        _tweenPlayer.wrapMode = (TweenPlayer.WrapMode)current.wrapMode;
+
+                        if (current.isTweening && EditorApplication.isPlaying)
+                        {
+                            // Repaint();
+                        }
+                    }
+
+                    break;
+                case TweenPlayer.Event.Delta:
+                    ForEach(t =>
+                    {
+                        t.UpdateTime(t.direction == UIMaterialPropertyTweener.Direction.Forward
+                            ? _tweenPlayer.delta
+                            : -_tweenPlayer.delta);
+                    });
+                    Repaint();
+                    break;
+                case TweenPlayer.Event.SetTime:
+                    ForEach(t => t.SetTime(_tweenPlayer.time));
+                    break;
+                case TweenPlayer.Event.Reset:
+                    ForEach(t => t.ResetTime(t.direction));
+                    break;
+                case TweenPlayer.Event.Play:
+                    ForEach(t => t.Play(false));
+                    break;
+                case TweenPlayer.Event.Pause:
+                    ForEach(t => t.SetPause(true));
+                    break;
+            }
+        }
+
+        private void ForEach(Action<UIMaterialPropertyTweener> action)
+        {
+            foreach (var tweener in targets.OfType<UIMaterialPropertyTweener>())
+            {
+                action(tweener);
+            }
         }
     }
 }

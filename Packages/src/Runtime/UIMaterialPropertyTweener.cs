@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using Coffee.UIMaterialPropertyInjectorInternal;
+using UnityEngine.Serialization;
 
 namespace Coffee.UIExtensions
 {
@@ -22,13 +23,38 @@ namespace Coffee.UIExtensions
             PingPong
         }
 
+        public enum Direction
+        {
+            Forward,
+            Reverse
+        }
+
+        public enum PlayOnEnable
+        {
+            None,
+            PlayForward,
+            PlayReverse,
+            Play
+        }
+
         [Tooltip("The target UIMaterialPropertyInjector to tween.")]
         [SerializeField]
         private UIMaterialPropertyInjector m_Target;
 
+        [Tooltip("The direction of the tween.")]
+        [SerializeField]
+        private Direction m_Direction = Direction.Forward;
+
         [Tooltip("The curve to tween the properties.")]
         [SerializeField]
         private AnimationCurve m_Curve = AnimationCurve.Linear(0, 0, 1, 1);
+
+        [SerializeField]
+        private bool m_SeparateReverseCurve;
+
+        [Tooltip("The curve to tween the properties.")]
+        [SerializeField]
+        private AnimationCurve m_ReverseCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
         [Tooltip("The delay in seconds before the tween starts.")]
         [SerializeField]
@@ -45,9 +71,14 @@ namespace Coffee.UIExtensions
         [Range(0f, 10)]
         private float m_Interval;
 
-        [Tooltip("Whether to restart the tween when enabled.")]
+        [FormerlySerializedAs("m_ResetTimeOnEnable")]
+        [Tooltip("Play the tween when the component is enabled.")]
         [SerializeField]
-        private bool m_RestartOnEnable = true;
+        private PlayOnEnable m_PlayOnEnable = PlayOnEnable.PlayForward;
+
+        [Tooltip("Reset the tweening time when the component is enabled.")]
+        [SerializeField]
+        private bool m_ResetTimeOnEnable = true;
 
         [Tooltip("The wrap mode of the tween.\n" +
                  "  Clamp: Clamp the tween value (not loop).\n" +
@@ -67,7 +98,8 @@ namespace Coffee.UIExtensions
         [SerializeField]
         private InjectionPropertyPair[] m_PropertyPairs = new InjectionPropertyPair[0];
 
-        private float _rate;
+        private bool _isPaused;
+        private float _rate = -1;
         private float _time;
 
         public Material defaultMaterialForRendering => m_Target ? m_Target.defaultMaterialForRendering : null;
@@ -78,6 +110,15 @@ namespace Coffee.UIExtensions
         public UIMaterialPropertyInjector target => m_Target;
 
         public InjectionPropertyPair[] propertyPairs => m_PropertyPairs;
+
+        /// <summary>
+        /// The direction of the tween.
+        /// </summary>
+        public Direction direction
+        {
+            get => m_Direction;
+            set => m_Direction = value;
+        }
 
         /// <summary>
         /// The rate of the tween.
@@ -91,7 +132,34 @@ namespace Coffee.UIExtensions
                 if (Mathf.Approximately(_rate, value)) return;
 
                 _rate = value;
-                var evaluatedRate = m_Curve.Evaluate(_rate);
+
+                if (target == null) return;
+
+                var currentCurve = curve;
+                if (separateReverseCurve)
+                {
+                    switch (wrapMode)
+                    {
+                        case WrapMode.Clamp:
+                        case WrapMode.Loop:
+                            if (direction == Direction.Reverse)
+                            {
+                                currentCurve = reverseCurve;
+                            }
+
+                            break;
+                        case WrapMode.PingPongOnce:
+                        case WrapMode.PingPong:
+                            if (delay + duration + interval <= _time)
+                            {
+                                currentCurve = reverseCurve;
+                            }
+
+                            break;
+                    }
+                }
+
+                var evaluatedRate = currentCurve.Evaluate(_rate);
                 foreach (var p in m_PropertyPairs)
                 {
                     p.SetValue(m_Target, evaluatedRate);
@@ -134,22 +202,19 @@ namespace Coffee.UIExtensions
         {
             get
             {
-                if (_time < delay) return _time;
-                var t = _time - delay;
-                switch (wrapMode)
+                if (wrapMode == WrapMode.Clamp || wrapMode == WrapMode.PingPongOnce)
                 {
-                    case WrapMode.Clamp:
-                    case WrapMode.PingPongOnce:
-                        return Mathf.Clamp(t, 0, totalTime - delay) + delay;
-                    case WrapMode.Loop:
-                    case WrapMode.PingPong:
-                        return Mathf.Repeat(t, totalTime - delay) + delay;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    return Mathf.Clamp(_time, 0, totalTime);
                 }
+
+                return Mathf.Repeat(_time, totalTime);
             }
         }
 
+        /// <summary>
+        /// The total time of the tween. (read only)
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public float totalTime
         {
             get
@@ -166,10 +231,28 @@ namespace Coffee.UIExtensions
             }
         }
 
+        /// <summary>
+        /// Play the tween when the component is enabled.
+        /// </summary>
+        public PlayOnEnable playOnEnable
+        {
+            get => m_PlayOnEnable;
+            set => m_PlayOnEnable = value;
+        }
+
+        /// <summary>
+        /// Reset the tweening time when the component is enabled..
+        /// </summary>
+        public bool resetTimeOnEnable
+        {
+            get => m_ResetTimeOnEnable;
+            set => m_ResetTimeOnEnable = value;
+        }
+
         public bool restartOnEnable
         {
-            get => m_RestartOnEnable;
-            set => m_RestartOnEnable = value;
+            get => m_PlayOnEnable == PlayOnEnable.PlayForward;
+            set => m_PlayOnEnable = value ? PlayOnEnable.PlayForward : PlayOnEnable.None;
         }
 
         public WrapMode wrapMode
@@ -190,6 +273,44 @@ namespace Coffee.UIExtensions
             set => m_Curve = value;
         }
 
+        public bool separateReverseCurve
+        {
+            get => m_SeparateReverseCurve;
+            set => m_SeparateReverseCurve = value;
+        }
+
+        public AnimationCurve reverseCurve
+        {
+            get => m_ReverseCurve;
+            set => m_ReverseCurve = value;
+        }
+
+        /// <summary>
+        /// Is the tween playing?
+        /// </summary>
+        public bool isTweening
+        {
+            get
+            {
+                if (_isPaused) return false;
+                if (wrapMode == WrapMode.Loop || wrapMode == WrapMode.PingPong) return true;
+
+                return direction == Direction.Forward
+                    ? _time < totalTime
+                    : 0 < _time;
+            }
+        }
+
+        /// <summary>
+        /// Is the tween paused?
+        /// </summary>
+        public bool isPaused => _isPaused;
+
+        /// <summary>
+        /// Is the tween delaying?
+        /// </summary>
+        public bool isDelaying => _time < delay;
+
         private void Reset()
         {
             m_Target = GetComponent<UIMaterialPropertyInjector>();
@@ -197,23 +318,42 @@ namespace Coffee.UIExtensions
 
         private void Update()
         {
-            switch (m_UpdateMode)
-            {
-                case UpdateMode.Normal:
-                    UpdateTime(Time.deltaTime);
-                    break;
-                case UpdateMode.Unscaled:
-                    UpdateTime(Time.unscaledDeltaTime);
-                    break;
-            }
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return;
+#endif
+            if (!isTweening) return;
+
+            var deltaTime = m_UpdateMode == UpdateMode.Unscaled
+                ? Time.unscaledDeltaTime
+                : Time.deltaTime;
+            UpdateTime(direction == Direction.Forward ? deltaTime : -deltaTime);
         }
 
         private void OnEnable()
         {
-            if (m_RestartOnEnable)
+            _isPaused = true;
+
+#if UNITY_EDITOR
+            if (!Application.isPlaying) return;
+#endif
+
+            switch (playOnEnable)
             {
-                Restart();
+                case PlayOnEnable.Play:
+                    Play(resetTimeOnEnable);
+                    break;
+                case PlayOnEnable.PlayForward:
+                    PlayForward(resetTimeOnEnable);
+                    break;
+                case PlayOnEnable.PlayReverse:
+                    PlayReverse(resetTimeOnEnable);
+                    break;
             }
+        }
+
+        private void OnDisable()
+        {
+            _isPaused = true;
         }
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
@@ -248,9 +388,86 @@ namespace Coffee.UIExtensions
             }
         }
 
+        [Obsolete(
+            "UIMaterialPropertyTweener.Restart has been deprecated. Use UIMaterialPropertyTweener.ResetTime instead (UnityUpgradable) -> ResetTime")]
         public void Restart()
         {
+            ResetTime();
+        }
+
+        public void Play(bool resetTime)
+        {
+            if (resetTime)
+            {
+                ResetTime(direction);
+            }
+
+            Play();
+        }
+
+        public void Play()
+        {
+            _isPaused = false;
+        }
+
+        public void PlayForward(bool resetTime)
+        {
+            if (resetTime)
+            {
+                ResetTime(Direction.Forward);
+            }
+
+            PlayForward();
+        }
+
+        public void PlayForward()
+        {
+            direction = Direction.Forward;
+            _isPaused = false;
+        }
+
+        public void PlayReverse(bool resetTime)
+        {
+            if (resetTime)
+            {
+                ResetTime(Direction.Reverse);
+            }
+
+            PlayReverse();
+        }
+
+        public void PlayReverse()
+        {
+            direction = Direction.Reverse;
+            _isPaused = false;
+        }
+
+        public void Stop()
+        {
+            _isPaused = true;
+            ResetTime();
+        }
+
+        public void SetPause(bool pause)
+        {
+            _isPaused = pause;
+        }
+
+        public void ResetTime()
+        {
             SetTime(0);
+        }
+
+        public void ResetTime(Direction dir)
+        {
+            if (dir == Direction.Forward)
+            {
+                SetTime(0);
+            }
+            else
+            {
+                SetTime(totalTime - 0.0001f);
+            }
         }
 
         public void SetTime(float sec)
@@ -261,33 +478,61 @@ namespace Coffee.UIExtensions
 
         public void UpdateTime(float deltaSec)
         {
-            rate = UpdateTime_Internal(Mathf.Max(0, deltaSec)) / duration;
-        }
-
-        private float UpdateTime_Internal(float delta)
-        {
-            _time += delta;
-            if (_time < delay) return 0;
+            var prevTweening = isTweening;
+            var isLoop = wrapMode == WrapMode.Loop || wrapMode == WrapMode.PingPong;
+            _time += deltaSec;
+            if (isLoop)
+            {
+                if (_time < 0)
+                {
+                    _time = Mathf.Repeat(_time, totalTime);
+                }
+                else if (delay < _time)
+                {
+                    _time = Mathf.Repeat(_time - delay, totalTime - delay) + delay;
+                }
+                else if (deltaSec < 0 && delay <= _time - deltaSec)
+                {
+                    _time = Mathf.Repeat(_time - delay, totalTime - delay) + delay;
+                }
+            }
+            else
+            {
+                _time = Mathf.Clamp(_time, 0, totalTime);
+            }
 
             var t = _time - delay;
+            if (t <= 0 && 0 <= _time)
+            {
+                rate = 0;
+                return;
+            }
+
             switch (wrapMode)
             {
+                case WrapMode.Clamp:
+                    t = Mathf.Clamp(t, 0, duration);
+                    _time = t + delay;
+                    break;
                 case WrapMode.Loop:
                     t = Mathf.Repeat(t, duration + interval);
+                    _time = t + delay;
                     break;
                 case WrapMode.PingPongOnce:
                     t = Mathf.Clamp(t, 0, duration * 2 + interval);
+                    _time = t + delay;
                     t = Mathf.PingPong(t, duration + interval * 0.5f);
                     break;
                 case WrapMode.PingPong:
                     t = Mathf.Repeat(t, (duration + interval) * 2);
+                    _time = t + delay;
                     t = t < duration * 2 + interval
                         ? Mathf.PingPong(t, duration + interval * 0.5f)
                         : 0;
                     break;
             }
 
-            return Mathf.Clamp(t, 0, duration);
+            rate = Mathf.Clamp(t, 0, duration) / duration;
         }
 
         public void ResetPropertiesToDefault()

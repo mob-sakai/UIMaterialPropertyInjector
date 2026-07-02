@@ -47,6 +47,12 @@ namespace Coffee.UIExtensions
                 var ip = self[i];
                 ip.host = host;
 
+                // If an injector from a different host is assigned, unassign the injector.
+                if (ip.injector != null && ip.injector.host != host)
+                {
+                    ip.injector = null;
+                }
+
                 if (allowInit && ip.shouldInit)
                 {
                     ip.Init(host.material);
